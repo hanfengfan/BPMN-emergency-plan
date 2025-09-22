@@ -19,6 +19,7 @@ import argparse
 import csv
 import re
 import textwrap
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
@@ -201,45 +202,98 @@ def assign_plan_context(root: TaskNode, paragraphs: Sequence[str]) -> None:
         node.plan_context = extract_plan_context(paragraphs, node.name)
 
 
-def build_lane_map(nodes: Sequence[TaskNode]) -> Dict[str, Dict[str, object]]:
-    lane_map: Dict[str, Dict[str, object]] = {}
+def build_lane_map(
+    nodes: Sequence[TaskNode],
+) -> Tuple[List[Dict[str, object]], Dict[str, str]]:
+    lane_map: "OrderedDict[str, Dict[str, object]]" = OrderedDict()
+    node_to_lane: Dict[str, str] = {}
     for node in nodes:
         responsibles = node.responsibles or ["未指定责任主体"]
-        for responsible in responsibles:
-            lane = lane_map.get(responsible)
-            if lane is None:
-                lane = {
+        primary = responsibles[0]
+        lane = lane_map.get(primary)
+        if lane is None:
+            lane = {
+                "id": f"Lane_{len(lane_map) + 1}",
+                "name": primary,
+                "flow_nodes": [],
+            }
+            lane_map[primary] = lane
+        lane["flow_nodes"].append(node.bpmn_id)
+        node_to_lane[node.bpmn_id] = lane["id"]
+        for additional in responsibles[1:]:
+            if additional not in lane_map:
+                lane_map[additional] = {
                     "id": f"Lane_{len(lane_map) + 1}",
-                    "name": responsible,
+                    "name": additional,
                     "flow_nodes": [],
                 }
-                lane_map[responsible] = lane
-            lane["flow_nodes"].append(node.bpmn_id)
-    return lane_map
+    return list(lane_map.values()), node_to_lane
 
 
 def layout_positions(
-    ordered_ids: Sequence[str],
+    ordered_nodes: Sequence[TaskNode],
+    lanes: Sequence[Dict[str, object]],
+    node_to_lane: Dict[str, str],
     start_id: str,
     end_id: str,
-) -> Dict[str, Tuple[float, float, float, float]]:
-    y_start = 60.0
-    x_position = 200.0
-    row_gap = 120.0
+) -> Tuple[
+    Dict[str, Tuple[float, float, float, float]],
+    Dict[str, Tuple[float, float, float, float]],
+]:
+    lane_x = 60.0
+    lane_label_width = 140.0
+    lane_gap = 20.0
+    lane_height = 160.0
+    task_width = 180.0
     task_height = 80.0
-    task_width = 200.0
+    task_gap_x = 220.0
     event_size = 36.0
 
+    content_start_x = lane_x + lane_label_width + 40.0
+    base_y = 60.0
+
+    lane_positions: Dict[str, Tuple[float, float, float, float]] = {}
+    lane_index: Dict[str, int] = {}
+    for index, lane in enumerate(lanes):
+        lane_id = lane["id"]
+        lane_index[lane_id] = index
+    if ordered_nodes:
+        max_task_right = content_start_x + (len(ordered_nodes) - 1) * task_gap_x + task_width
+    else:
+        max_task_right = content_start_x + task_width
+    lane_width = max_task_right + 80.0 - lane_x
+
+    for lane_id, index in lane_index.items():
+        lane_y = base_y + index * (lane_height + lane_gap)
+        lane_positions[lane_id] = (lane_x, lane_y, lane_width, lane_height)
+
     positions: Dict[str, Tuple[float, float, float, float]] = {}
-    positions[start_id] = (x_position + 82.0, y_start, event_size, event_size)
 
-    current_y = y_start + row_gap
-    for element_id in ordered_ids:
-        positions[element_id] = (x_position, current_y, task_width, task_height)
-        current_y += row_gap
+    for node_index, node in enumerate(ordered_nodes):
+        lane_id = node_to_lane[node.bpmn_id]
+        lane_y = lane_positions[lane_id][1]
+        y_position = lane_y + (lane_height - task_height) / 2.0
+        x_position = content_start_x + node_index * task_gap_x
+        positions[node.bpmn_id] = (x_position, y_position, task_width, task_height)
 
-    positions[end_id] = (x_position + 82.0, current_y, event_size, event_size)
-    return positions
+    if ordered_nodes:
+        first_lane_id = node_to_lane[ordered_nodes[0].bpmn_id]
+        last_lane_id = node_to_lane[ordered_nodes[-1].bpmn_id]
+        first_lane_y = lane_positions[first_lane_id][1]
+        last_lane_y = lane_positions[last_lane_id][1]
+    else:
+        first_lane_y = base_y
+        last_lane_y = base_y
+
+    start_x = content_start_x - event_size - 40.0
+    start_y = first_lane_y + (lane_height - event_size) / 2.0
+    end_x = max_task_right + 40.0
+    end_y = last_lane_y + (lane_height - event_size) / 2.0
+
+    positions[start_id] = (start_x, start_y, event_size, event_size)
+    positions[end_id] = (end_x, end_y, event_size, event_size)
+
+    return positions, lane_positions
 
 
 def build_bpmn(root: TaskNode, output_path: Path) -> None:
@@ -271,7 +325,7 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
     if previous_node is not None:
         previous_node.outgoing.append(final_flow_id)
 
-    lane_map = build_lane_map(ordered_nodes)
+    lanes, node_to_lane = build_lane_map(ordered_nodes)
 
     definitions = ET.Element(
         "bpmn:definitions",
@@ -292,7 +346,7 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
     )
 
     lane_set = ET.SubElement(process, "bpmn:laneSet", attrib={"id": "LaneSet_1"})
-    for lane in lane_map.values():
+    for lane in lanes:
         lane_element = ET.SubElement(
             lane_set,
             "bpmn:lane",
@@ -329,8 +383,9 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             "bpmn:sequenceFlow",
             attrib={"id": flow_id, "sourceRef": source_id, "targetRef": target_id},
         )
-    ordered_ids = [node.bpmn_id for node in ordered_nodes]
-    positions = layout_positions(ordered_ids, start_id, end_id)
+    positions, lane_positions = layout_positions(
+        ordered_nodes, lanes, node_to_lane, start_id, end_id
+    )
     diagram = ET.SubElement(
         definitions,
         "bpmndi:BPMNDiagram",
@@ -341,6 +396,24 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
         "bpmndi:BPMNPlane",
         attrib={"id": "BPMNPlane_WaterTrafficEmergency", "bpmnElement": process_id},
     )
+    for lane in lanes:
+        lane_bounds = lane_positions[lane["id"]]
+        lane_shape = ET.SubElement(
+            plane,
+            "bpmndi:BPMNShape",
+            attrib={"id": f"{lane['id']}_di", "bpmnElement": lane["id"]},
+        )
+        ET.SubElement(
+            lane_shape,
+            "dc:Bounds",
+            attrib={
+                "x": f"{lane_bounds[0]:.2f}",
+                "y": f"{lane_bounds[1]:.2f}",
+                "width": f"{lane_bounds[2]:.2f}",
+                "height": f"{lane_bounds[3]:.2f}",
+            },
+        )
+
     for element_id, (x, y, width, height) in positions.items():
         shape = ET.SubElement(
             plane,
@@ -357,12 +430,13 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "height": f"{height:.2f}",
             },
         )
-    def element_bottom(bounds: Tuple[float, float, float, float]) -> Tuple[float, float]:
+    def element_right(bounds: Tuple[float, float, float, float]) -> Tuple[float, float]:
         x, y, width, height = bounds
-        return (x + width / 2.0, y + height)
-    def element_top(bounds: Tuple[float, float, float, float]) -> Tuple[float, float]:
-        x, y, width, _ = bounds
-        return (x + width / 2.0, y)
+        return (x + width, y + height / 2.0)
+
+    def element_left(bounds: Tuple[float, float, float, float]) -> Tuple[float, float]:
+        x, y, _, height = bounds
+        return (x, y + height / 2.0)
     for flow_id, source_id, target_id in sequence_flows:
         edge = ET.SubElement(
             plane,
@@ -372,13 +446,13 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
         source_bounds = positions[source_id]
         target_bounds = positions[target_id]
         if source_id == start_id:
-            start_point = element_bottom(source_bounds)
+            start_point = element_right(source_bounds)
         else:
-            start_point = element_bottom(source_bounds)
+            start_point = element_right(source_bounds)
         if target_id == end_id:
-            end_point = element_top(target_bounds)
+            end_point = element_left(target_bounds)
         else:
-            end_point = element_top(target_bounds)
+            end_point = element_left(target_bounds)
         for point in (start_point, end_point):
             ET.SubElement(
                 edge,
@@ -388,6 +462,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
     tree = ET.ElementTree(definitions)
     ET.indent(tree, space="  ", level=0)
     tree.write(output_path, encoding="utf-8", xml_declaration=True)
+    with output_path.open("a", encoding="utf-8") as handle:
+        handle.write("\n")
 
 
 def build_and_export(
