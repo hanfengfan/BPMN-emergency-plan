@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_WaterwayEmergency" targetNamespace="http://example.com/bpmn/emergency-plan">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_WaterwayEmergency" targetNamespace="http://example.com/bpmn/emergency-plan">
   <process id="Process_WaterwayEmergency" name="水上交通事故应急处置流程" isExecutable="false">
     <laneSet id="LaneSet_WaterwayEmergency">
       <lane id="Lane_1" name="信息联络组/现场处置小组">
@@ -68,4 +68,92 @@
 现场处置小组 -&gt; 项目部应急领导小组：险情信息与现场动态
 项目部应急领导小组 -&gt; 交通/应急/海事主管部门：事故报告与救援请求</documentation>
   </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_WaterwayEmergency">
+    <bpmndi:BPMNPlane id="BPMNPlane_WaterwayEmergency" bpmnElement="Process_WaterwayEmergency">
+      <bpmndi:BPMNShape id="Lane_1_di" bpmnElement="Lane_1">
+        <dc:Bounds x="20.0" y="110.0" width="2100.0" height="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_2_di" bpmnElement="Lane_2">
+        <dc:Bounds x="20.0" y="290.0" width="2100.0" height="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_3_di" bpmnElement="Lane_3">
+        <dc:Bounds x="20.0" y="470.0" width="2100.0" height="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_4_di" bpmnElement="Lane_4">
+        <dc:Bounds x="20.0" y="650.0" width="2100.0" height="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_5_di" bpmnElement="Lane_5">
+        <dc:Bounds x="20.0" y="830.0" width="2100.0" height="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_6_di" bpmnElement="Lane_6">
+        <dc:Bounds x="20.0" y="1010.0" width="2100.0" height="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_7_di" bpmnElement="Lane_7">
+        <dc:Bounds x="20.0" y="1190.0" width="2100.0" height="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="140.0" y="902.0" width="36.0" height="36.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pre_warning_di" bpmnElement="pre_warning">
+        <dc:Bounds x="360.0" y="1055.0" width="140.0" height="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="report_di" bpmnElement="report">
+        <dc:Bounds x="580.0" y="155.0" width="140.0" height="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="response_di" bpmnElement="response">
+        <dc:Bounds x="800.0" y="1225.0" width="170.0" height="110.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway_1_di" bpmnElement="gateway_1">
+        <dc:Bounds x="1020.0" y="895.0" width="50.0" height="50.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="external_support_di" bpmnElement="external_support">
+        <dc:Bounds x="1240.0" y="695.0" width="140.0" height="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onsite_di" bpmnElement="onsite">
+        <dc:Bounds x="1460.0" y="505.0" width="170.0" height="110.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="recovery_di" bpmnElement="recovery">
+        <dc:Bounds x="1680.0" y="335.0" width="140.0" height="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1900.0" y="902.0" width="36.0" height="36.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="176.0" y="920.0"/>
+        <di:waypoint x="360.0" y="1100.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="500.0" y="1100.0"/>
+        <di:waypoint x="580.0" y="200.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="720.0" y="200.0"/>
+        <di:waypoint x="800.0" y="1280.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="970.0" y="1280.0"/>
+        <di:waypoint x="1020.0" y="920.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="1070.0" y="920.0"/>
+        <di:waypoint x="1460.0" y="560.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="1070.0" y="920.0"/>
+        <di:waypoint x="1240.0" y="740.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="1380.0" y="740.0"/>
+        <di:waypoint x="1460.0" y="560.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="1630.0" y="560.0"/>
+        <di:waypoint x="1680.0" y="380.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="1820.0" y="380.0"/>
+        <di:waypoint x="1900.0" y="920.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </definitions>

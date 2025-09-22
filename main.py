@@ -332,8 +332,15 @@ def generate_bpmn_model(root: HTATask, task_records: List[Dict]) -> Dict[str, ob
 
 def build_bpmn_xml(bpmn_model: Dict[str, object]) -> str:
     bpmn_ns = "http://www.omg.org/spec/BPMN/20100524/MODEL"
+    bpmndi_ns = "http://www.omg.org/spec/BPMN/20100524/DI"
+    dc_ns = "http://www.omg.org/spec/DD/20100524/DC"
+    di_ns = "http://www.omg.org/spec/DD/20100524/DI"
+
     ET.register_namespace("", bpmn_ns)
     ET.register_namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    ET.register_namespace("bpmndi", bpmndi_ns)
+    ET.register_namespace("dc", dc_ns)
+    ET.register_namespace("di", di_ns)
 
     def qname(name: str) -> str:
         return f"{{{bpmn_ns}}}{name}"
@@ -363,18 +370,21 @@ def build_bpmn_xml(bpmn_model: Dict[str, object]) -> str:
         lane_name = str(node.get("lane") or "流程控制")
         lane_assignments[lane_name].append(node_id)
 
+    lane_infos = []
     lane_set = ET.SubElement(process, qname("laneSet"), {"id": "LaneSet_WaterwayEmergency"})
     for idx, (lane_name, node_ids) in enumerate(sorted(lane_assignments.items()), start=1):
+        lane_id = f"Lane_{idx}"
         lane = ET.SubElement(
             lane_set,
             qname("lane"),
             {
-                "id": f"Lane_{idx}",
+                "id": lane_id,
                 "name": lane_name,
             },
         )
         for node_id in node_ids:
             ET.SubElement(lane, qname("flowNodeRef")).text = node_id
+        lane_infos.append({"name": lane_name, "id": lane_id, "node_ids": node_ids})
 
     type_map = {
         "start_event": "startEvent",
@@ -384,7 +394,25 @@ def build_bpmn_xml(bpmn_model: Dict[str, object]) -> str:
         "exclusive_gateway": "exclusiveGateway",
     }
 
-    for node in nodes:
+    lane_index_map = {info["name"]: pos for pos, info in enumerate(lane_infos)}
+    lane_height = 160
+    lane_gap = 20
+    base_y = 120
+    base_x = 140
+    x_spacing = 220
+
+    def node_dimensions(node_type: str) -> Tuple[int, int]:
+        if node_type == "start_event" or node_type == "end_event":
+            return 36, 36
+        if node_type == "exclusive_gateway":
+            return 50, 50
+        if node_type == "sub_process":
+            return 170, 110
+        return 140, 90
+
+    node_positions: Dict[str, Dict[str, float]] = {}
+
+    for idx, node in enumerate(nodes):
         node_id = str(node["id"])  # type: ignore[index]
         node_type = str(node.get("type", "task"))
         tag_name = type_map.get(node_type, "task")
@@ -413,6 +441,15 @@ def build_bpmn_xml(bpmn_model: Dict[str, object]) -> str:
         if documentation_lines:
             ET.SubElement(element, qname("documentation")).text = "\n".join(documentation_lines)
 
+        lane_name = str(node.get("lane") or "流程控制")
+        lane_index = lane_index_map.get(lane_name, 0)
+        width, height = node_dimensions(node_type)
+        lane_y = base_y + lane_index * (lane_height + lane_gap)
+        node_y = lane_y + (lane_height - height) / 2
+        node_x = base_x + idx * x_spacing
+        node_positions[node_id] = {"x": node_x, "y": node_y, "width": width, "height": height}
+
+    sequence_flows: List[Tuple[str, str, str]] = []
     for idx, edge in enumerate(bpmn_model.get("edges", [])):  # type: ignore[call-arg]
         if not isinstance(edge, dict):
             continue
@@ -425,6 +462,7 @@ def build_bpmn_xml(bpmn_model: Dict[str, object]) -> str:
         if condition:
             attributes["name"] = str(condition)
         ET.SubElement(process, qname("sequenceFlow"), attributes)
+        sequence_flows.append((attributes["id"], attributes["sourceRef"], attributes["targetRef"]))
 
     message_flows = bpmn_model.get("message_flows", [])
     documentation_lines = ["自动生成的 BPMN 2.0 流程模型。"]
@@ -437,6 +475,78 @@ def build_bpmn_xml(bpmn_model: Dict[str, object]) -> str:
                 f"{flow.get('from', '')} -> {flow.get('to', '')}：{flow.get('message', '')}"
             )
     ET.SubElement(process, qname("documentation")).text = "\n".join(documentation_lines)
+
+    diagram = ET.SubElement(
+        definitions,
+        f"{{{bpmndi_ns}}}BPMNDiagram",
+        {"id": "BPMNDiagram_WaterwayEmergency"},
+    )
+    plane = ET.SubElement(
+        diagram,
+        f"{{{bpmndi_ns}}}BPMNPlane",
+        {"id": "BPMNPlane_WaterwayEmergency", "bpmnElement": "Process_WaterwayEmergency"},
+    )
+
+    max_x = base_x + max(len(nodes) - 1, 0) * x_spacing + 220
+
+    for lane_idx, info in enumerate(lane_infos):
+        lane_y = base_y + lane_idx * (lane_height + lane_gap) - 10
+        lane_shape = ET.SubElement(
+            plane,
+            f"{{{bpmndi_ns}}}BPMNShape",
+            {"id": f"{info['id']}_di", "bpmnElement": info["id"]},
+        )
+        ET.SubElement(
+            lane_shape,
+            f"{{{dc_ns}}}Bounds",
+            {
+                "x": f"{base_x - 120:.1f}",
+                "y": f"{lane_y:.1f}",
+                "width": f"{max_x - (base_x - 120):.1f}",
+                "height": f"{lane_height + 20:.1f}",
+            },
+        )
+
+    for node_id, position in node_positions.items():
+        shape = ET.SubElement(
+            plane,
+            f"{{{bpmndi_ns}}}BPMNShape",
+            {"id": f"{node_id}_di", "bpmnElement": node_id},
+        )
+        ET.SubElement(
+            shape,
+            f"{{{dc_ns}}}Bounds",
+            {
+                "x": f"{position['x']:.1f}",
+                "y": f"{position['y']:.1f}",
+                "width": f"{position['width']:.1f}",
+                "height": f"{position['height']:.1f}",
+            },
+        )
+
+    for flow_id, source_id, target_id in sequence_flows:
+        edge = ET.SubElement(
+            plane,
+            f"{{{bpmndi_ns}}}BPMNEdge",
+            {"id": f"{flow_id}_di", "bpmnElement": flow_id},
+        )
+        source = node_positions.get(source_id)
+        target = node_positions.get(target_id)
+        if source and target:
+            start_x = source["x"] + source["width"]
+            start_y = source["y"] + source["height"] / 2
+            end_x = target["x"]
+            end_y = target["y"] + target["height"] / 2
+            ET.SubElement(
+                edge,
+                f"{{{di_ns}}}waypoint",
+                {"x": f"{start_x:.1f}", "y": f"{start_y:.1f}"},
+            )
+            ET.SubElement(
+                edge,
+                f"{{{di_ns}}}waypoint",
+                {"x": f"{end_x:.1f}", "y": f"{end_y:.1f}"},
+            )
 
     rough_xml = ET.tostring(definitions, encoding="utf-8")
     parsed = minidom.parseString(rough_xml)
