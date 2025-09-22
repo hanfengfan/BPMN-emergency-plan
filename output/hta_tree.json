@@ -1,0 +1,501 @@
+{
+  "name": "总体应急目标",
+  "description": "快速反应、科学处置、减少人员伤亡和财产损失",
+  "owners": [
+    "项目部应急领导小组"
+  ],
+  "resources": [
+    "全体应急资源"
+  ],
+  "level": 0,
+  "children": [
+    {
+      "name": "事故预警",
+      "description": "识别风险、发布预警、调整施工",
+      "owners": [
+        "综合协调组",
+        "技术支持组"
+      ],
+      "resources": [
+        "监测信息",
+        "预警系统"
+      ],
+      "level": 1,
+      "children": [
+        {
+          "name": "风险监测",
+          "description": "风险辨识与监控",
+          "owners": [
+            "技术支持组"
+          ],
+          "resources": [
+            "风险评估工具"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "日常巡查",
+              "description": "定期检查施工设备、船舶状况",
+              "owners": [
+                "技术支持组"
+              ],
+              "resources": [
+                "检查表",
+                "监测仪器"
+              ],
+              "level": 3,
+              "children": []
+            },
+            {
+              "name": "环境监测",
+              "description": "监控风力、潮汐、能见度等气象条件",
+              "owners": [
+                "技术支持组"
+              ],
+              "resources": [
+                "气象信息系统"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "预警发布",
+          "description": "分级发布蓝/黄/橙/红预警",
+          "owners": [
+            "项目部应急办公室"
+          ],
+          "resources": [
+            "预警信息通告"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "信息通报",
+              "description": "发布预警通知至各小组",
+              "owners": [
+                "综合协调组"
+              ],
+              "resources": [
+                "预警通知单"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "事故报告",
+      "description": "发现事故、逐级报告、上报政府",
+      "owners": [
+        "信息联络组",
+        "现场处置小组"
+      ],
+      "resources": [
+        "通讯工具",
+        "报告模板"
+      ],
+      "level": 1,
+      "children": [
+        {
+          "name": "事故发现",
+          "description": "现场人员立即上报",
+          "owners": [
+            "现场处置小组"
+          ],
+          "resources": [
+            "通讯工具"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "报告内容确认",
+              "description": "报告事故时间、地点、人员伤亡",
+              "owners": [
+                "现场处置小组"
+              ],
+              "resources": [
+                "通讯工具"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "信息汇总",
+          "description": "项目部应急办公室汇总情况",
+          "owners": [
+            "信息联络组"
+          ],
+          "resources": [
+            "事故信息表"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "核实信息",
+              "description": "对接监理和建设单位确认信息",
+              "owners": [
+                "信息联络组"
+              ],
+              "resources": [
+                "事故信息表"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "上报政府",
+          "description": "逐级上报交通局、应急局、海事局",
+          "owners": [
+            "信息联络组"
+          ],
+          "resources": [
+            "联系方式清单"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "逐级汇报",
+              "description": "按要求向交通、应急、海事局上报",
+              "owners": [
+                "信息联络组"
+              ],
+              "resources": [
+                "联系方式清单"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "应急响应",
+      "description": "启动预案、组织队伍、调配资源",
+      "owners": [
+        "项目部应急领导小组"
+      ],
+      "resources": [
+        "应急车辆",
+        "通信装备"
+      ],
+      "level": 1,
+      "children": [
+        {
+          "name": "分级响应",
+          "description": "根据严重程度启动Ⅰ级或Ⅱ级",
+          "owners": [
+            "项目部应急领导小组"
+          ],
+          "resources": [
+            "响应分级标准"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "启动Ⅱ级响应",
+              "description": "项目内部组织自救",
+              "owners": [
+                "项目部应急领导小组"
+              ],
+              "resources": [
+                "项目部资源"
+              ],
+              "level": 3,
+              "children": []
+            },
+            {
+              "name": "启动Ⅰ级响应",
+              "description": "请求社会力量支援",
+              "owners": [
+                "项目部应急领导小组"
+              ],
+              "resources": [
+                "政府应急资源"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "任务分工",
+          "description": "各小组按职责执行",
+          "owners": [
+            "工程抢险组",
+            "医疗救护组"
+          ],
+          "resources": [
+            "救援任务单"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "下达指令",
+              "description": "组长向各小组明确任务",
+              "owners": [
+                "项目部领导"
+              ],
+              "resources": [
+                "任务分工表"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "现场处置",
+      "description": "实施救援、控制险情、人员疏散",
+      "owners": [
+        "工程抢险组",
+        "医疗救护组",
+        "综合协调组"
+      ],
+      "resources": [
+        "抢险设备",
+        "医疗物资",
+        "交通管制设施"
+      ],
+      "level": 1,
+      "children": [
+        {
+          "name": "人员救护",
+          "description": "现场急救、转运医院",
+          "owners": [
+            "医疗救护组"
+          ],
+          "resources": [
+            "急救药品",
+            "担架",
+            "救护车"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "现场急救",
+              "description": "止血、包扎、心肺复苏",
+              "owners": [
+                "医疗救护组"
+              ],
+              "resources": [
+                "急救药品",
+                "担架"
+              ],
+              "level": 3,
+              "children": []
+            },
+            {
+              "name": "医院转运",
+              "description": "联系120并护送伤员",
+              "owners": [
+                "医疗救护组"
+              ],
+              "resources": [
+                "救护车",
+                "转运路线"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "工程抢险",
+          "description": "设备抢险、险情控制",
+          "owners": [
+            "工程抢险组"
+          ],
+          "resources": [
+            "排水泵",
+            "堵漏工具",
+            "吊装设备"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "封锁险区",
+              "description": "设立警戒线，禁止无关人员进入",
+              "owners": [
+                "工程抢险组"
+              ],
+              "resources": [
+                "警示标志",
+                "围栏"
+              ],
+              "level": 3,
+              "children": []
+            },
+            {
+              "name": "险情控制",
+              "description": "排水、堵漏、加固等措施",
+              "owners": [
+                "工程抢险组"
+              ],
+              "resources": [
+                "抢险设备"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "综合协调",
+          "description": "交通管制、人员疏散、现场保护",
+          "owners": [
+            "综合协调组"
+          ],
+          "resources": [
+            "警示标志",
+            "交通管制设施"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "疏散人员",
+              "description": "组织施工人员撤离危险区",
+              "owners": [
+                "综合协调组"
+              ],
+              "resources": [
+                "交通管制设施"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "信息联络",
+          "description": "对内传达、对外联络",
+          "owners": [
+            "信息联络组"
+          ],
+          "resources": [
+            "通信装备"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "外部联络",
+              "description": "联系医院、政府部门",
+              "owners": [
+                "信息联络组"
+              ],
+              "resources": [
+                "通讯设备"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "后期恢复",
+      "description": "事故调查、善后处置、总结评估",
+      "owners": [
+        "善后处置组",
+        "技术支持组"
+      ],
+      "resources": [
+        "法律支持",
+        "补偿资金",
+        "评估报告"
+      ],
+      "level": 1,
+      "children": [
+        {
+          "name": "善后工作",
+          "description": "人员安置、补偿、心理安抚",
+          "owners": [
+            "善后处置组"
+          ],
+          "resources": [
+            "补偿资金",
+            "安置方案"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "心理安抚",
+              "description": "对伤亡人员家属进行安抚",
+              "owners": [
+                "善后处置组"
+              ],
+              "resources": [
+                "心理辅导人员"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "事故调查",
+          "description": "事故原因调查、责任认定",
+          "owners": [
+            "技术支持组",
+            "外部机构"
+          ],
+          "resources": [
+            "调查报告",
+            "法律文件"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "资料收集",
+              "description": "收集事故记录、日志、证据",
+              "owners": [
+                "技术支持组"
+              ],
+              "resources": [
+                "调查工具"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "总结评估",
+          "description": "应急响应效果评估",
+          "owners": [
+            "项目部应急领导小组"
+          ],
+          "resources": [
+            "评估报告"
+          ],
+          "level": 2,
+          "children": [
+            {
+              "name": "编写报告",
+              "description": "形成事故应急评估报告",
+              "owners": [
+                "项目部应急领导小组"
+              ],
+              "resources": [
+                "总结报告模板"
+              ],
+              "level": 3,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

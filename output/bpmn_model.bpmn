@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_WaterwayEmergency" targetNamespace="http://example.com/bpmn/emergency-plan">
+  <process id="Process_WaterwayEmergency" name="水上交通事故应急处置流程" isExecutable="false">
+    <laneSet id="LaneSet_WaterwayEmergency">
+      <lane id="Lane_1" name="信息联络组/现场处置小组">
+        <flowNodeRef>report</flowNodeRef>
+      </lane>
+      <lane id="Lane_2" name="善后处置组/技术支持组">
+        <flowNodeRef>recovery</flowNodeRef>
+      </lane>
+      <lane id="Lane_3" name="工程抢险组/医疗救护组/综合协调组">
+        <flowNodeRef>onsite</flowNodeRef>
+      </lane>
+      <lane id="Lane_4" name="政府及外部机构">
+        <flowNodeRef>external_support</flowNodeRef>
+      </lane>
+      <lane id="Lane_5" name="流程控制">
+        <flowNodeRef>start</flowNodeRef>
+        <flowNodeRef>gateway_1</flowNodeRef>
+        <flowNodeRef>end</flowNodeRef>
+      </lane>
+      <lane id="Lane_6" name="综合协调组/技术支持组">
+        <flowNodeRef>pre_warning</flowNodeRef>
+      </lane>
+      <lane id="Lane_7" name="项目部应急领导小组">
+        <flowNodeRef>response</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="start" name="事故发现/预警"/>
+    <task id="pre_warning" name="事故预警">
+      <documentation>风险监测；风险辨识与监控；责任：技术支持组；下级任务：日常巡查、环境监测
+预警发布；分级发布蓝/黄/橙/红预警；责任：项目部应急办公室；下级任务：信息通报</documentation>
+    </task>
+    <task id="report" name="事故报告">
+      <documentation>事故发现；现场人员立即上报；责任：现场处置小组；下级任务：报告内容确认
+信息汇总；项目部应急办公室汇总情况；责任：信息联络组；下级任务：核实信息
+上报政府；逐级上报交通局、应急局、海事局；责任：信息联络组；下级任务：逐级汇报</documentation>
+    </task>
+    <subProcess id="response" name="应急响应">
+      <documentation>分级响应；根据严重程度启动Ⅰ级或Ⅱ级；责任：项目部应急领导小组；下级任务：启动Ⅱ级响应、启动Ⅰ级响应
+任务分工；各小组按职责执行；责任：工程抢险组、医疗救护组；下级任务：下达指令</documentation>
+    </subProcess>
+    <exclusiveGateway id="gateway_1" name="处置能力判断" gatewayDirection="Diverging"/>
+    <task id="external_support" name="社会力量支援协调"/>
+    <subProcess id="onsite" name="现场处置">
+      <documentation>人员救护；现场急救、转运医院；责任：医疗救护组；下级任务：现场急救、医院转运
+工程抢险；设备抢险、险情控制；责任：工程抢险组；下级任务：封锁险区、险情控制
+综合协调；交通管制、人员疏散、现场保护；责任：综合协调组；下级任务：疏散人员
+信息联络；对内传达、对外联络；责任：信息联络组；下级任务：外部联络</documentation>
+    </subProcess>
+    <task id="recovery" name="后期恢复">
+      <documentation>善后工作；人员安置、补偿、心理安抚；责任：善后处置组；下级任务：心理安抚
+事故调查；事故原因调查、责任认定；责任：技术支持组、外部机构；下级任务：资料收集
+总结评估；应急响应效果评估；责任：项目部应急领导小组；下级任务：编写报告</documentation>
+    </task>
+    <endEvent id="end" name="响应结束/进入善后"/>
+    <sequenceFlow id="Flow_1" sourceRef="start" targetRef="pre_warning"/>
+    <sequenceFlow id="Flow_2" sourceRef="pre_warning" targetRef="report"/>
+    <sequenceFlow id="Flow_3" sourceRef="report" targetRef="response"/>
+    <sequenceFlow id="Flow_4" sourceRef="response" targetRef="gateway_1"/>
+    <sequenceFlow id="Flow_5" sourceRef="gateway_1" targetRef="onsite" name="项目处置能力充足"/>
+    <sequenceFlow id="Flow_6" sourceRef="gateway_1" targetRef="external_support" name="需外部增援"/>
+    <sequenceFlow id="Flow_7" sourceRef="external_support" targetRef="onsite"/>
+    <sequenceFlow id="Flow_8" sourceRef="onsite" targetRef="recovery"/>
+    <sequenceFlow id="Flow_9" sourceRef="recovery" targetRef="end"/>
+    <documentation>自动生成的 BPMN 2.0 流程模型。
+消息流：
+现场处置小组 -&gt; 项目部应急领导小组：险情信息与现场动态
+项目部应急领导小组 -&gt; 交通/应急/海事主管部门：事故报告与救援请求</documentation>
+  </process>
+</definitions>
