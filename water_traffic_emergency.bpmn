@@ -1,0 +1,726 @@
+<?xml version='1.0' encoding='utf-8'?>
+<bpmn:definitions id="Definitions_WaterTrafficEmergency" targetNamespace="http://example.com/bpmn/water-traffic-emergency">
+  <bpmn:process id="Process_WaterTrafficEmergency" name="水上交通事故应急流程" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_1" name="综合协调组">
+        <bpmn:flowNodeRef>Activity_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_20</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_27</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_28</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_2" name="技术支持组">
+        <bpmn:flowNodeRef>Activity_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_31</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_34</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_35</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_3" name="项目部应急办公室">
+        <bpmn:flowNodeRef>Activity_5</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_4" name="信息联络组">
+        <bpmn:flowNodeRef>Activity_7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_10</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_11</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_12</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_13</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_29</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_30</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_5" name="现场处置小组">
+        <bpmn:flowNodeRef>Activity_7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_9</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_6" name="项目部应急领导小组">
+        <bpmn:flowNodeRef>Activity_14</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_15</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_16</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_17</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_36</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_37</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_7" name="工程抢险组">
+        <bpmn:flowNodeRef>Activity_18</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_20</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_24</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_25</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_26</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_8" name="医疗救护组">
+        <bpmn:flowNodeRef>Activity_18</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_20</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_21</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_22</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_23</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_9" name="项目部领导">
+        <bpmn:flowNodeRef>Activity_19</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_10" name="善后处置组">
+        <bpmn:flowNodeRef>Activity_31</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_32</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_33</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_11" name="外部机构">
+        <bpmn:flowNodeRef>Activity_34</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_WaterIncident" name="事故发现/预警">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_1" name="事故预警">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：识别风险、发布预警、调整施工
+责任主体：综合协调组、技术支持组
+所需资源：监测信息、预警系统
+任务路径：总体应急目标 → 事故预警</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_2" name="风险监测">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：风险辨识与监控
+责任主体：技术支持组
+所需资源：风险评估工具
+任务路径：总体应急目标 → 事故预警 → 风险监测</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_3" name="日常巡查">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：定期检查施工设备、船舶状况
+责任主体：技术支持组
+所需资源：检查表、监测仪器
+任务路径：总体应急目标 → 事故预警 → 风险监测 → 日常巡查</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_4" name="环境监测">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：监控风力、潮汐、能见度等气象条件
+责任主体：技术支持组
+所需资源：气象信息系统
+任务路径：总体应急目标 → 事故预警 → 风险监测 → 环境监测</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_5" name="预警发布">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：分级发布蓝/黄/橙/红预警
+责任主体：项目部应急办公室
+所需资源：预警信息通告
+任务路径：总体应急目标 → 事故预警 → 预警发布</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_6" name="信息通报">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：发布预警通知至各小组
+责任主体：综合协调组
+所需资源：预警通知单
+任务路径：总体应急目标 → 事故预警 → 预警发布 → 信息通报</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_7" name="事故报告">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：发现事故、逐级报告、上报政府
+预案摘录：#### 2.2.5 应急处置措施…
+责任主体：信息联络组、现场处置小组
+所需资源：通讯工具、报告模板
+任务路径：总体应急目标 → 事故报告</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_8" name="事故发现">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：现场人员立即上报
+责任主体：现场处置小组
+所需资源：通讯工具
+任务路径：总体应急目标 → 事故报告 → 事故发现</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_9" name="报告内容确认">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：报告事故时间、地点、人员伤亡
+责任主体：现场处置小组
+所需资源：通讯工具
+任务路径：总体应急目标 → 事故报告 → 事故发现 → 报告内容确认</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_10" name="信息汇总">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：项目部应急办公室汇总情况
+责任主体：信息联络组
+所需资源：事故信息表
+任务路径：总体应急目标 → 事故报告 → 信息汇总</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_11" name="核实信息">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：对接监理和建设单位确认信息
+责任主体：信息联络组
+所需资源：事故信息表
+任务路径：总体应急目标 → 事故报告 → 信息汇总 → 核实信息</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_12" name="上报政府">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：逐级上报交通局、应急局、海事局
+责任主体：信息联络组
+所需资源：联系方式清单
+任务路径：总体应急目标 → 事故报告 → 上报政府</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_13" name="逐级汇报">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：按要求向交通、应急、海事局上报
+责任主体：信息联络组
+所需资源：联系方式清单
+任务路径：总体应急目标 → 事故报告 → 上报政府 → 逐级汇报</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_14" name="应急响应">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：启动预案、组织队伍、调配资源
+预案摘录：#### 2.2.4 处置程序 发生险情时，现场处置小组立即开展先期应急处置工作，同时上报项目部应急救援领导小组，项目部应急救援领导小组获取事故的险情报告后，立即对险情进行评估，根据险情评估结果确定响应等级并启动预案。 其中，应急响应、后期处置等，详见第一章总则1.6、1.7。 具体现场处置流程如下：…
+责任主体：项目部应急领导小组
+所需资源：应急车辆、通信装备
+任务路径：总体应急目标 → 应急响应</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_15" name="分级响应">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：根据严重程度启动Ⅰ级或Ⅱ级
+责任主体：项目部应急领导小组
+所需资源：响应分级标准
+任务路径：总体应急目标 → 应急响应 → 分级响应</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_16" name="启动Ⅱ级响应">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：项目内部组织自救
+责任主体：项目部应急领导小组
+所需资源：项目部资源
+任务路径：总体应急目标 → 应急响应 → 分级响应 → 启动Ⅱ级响应</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_17" name="启动Ⅰ级响应">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：请求社会力量支援
+责任主体：项目部应急领导小组
+所需资源：政府应急资源
+任务路径：总体应急目标 → 应急响应 → 分级响应 → 启动Ⅰ级响应</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_18" name="任务分工">
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：各小组按职责执行
+责任主体：工程抢险组、医疗救护组
+所需资源：救援任务单
+任务路径：总体应急目标 → 应急响应 → 任务分工</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_19" name="下达指令">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：组长向各小组明确任务
+责任主体：项目部领导
+所需资源：任务分工表
+任务路径：总体应急目标 → 应急响应 → 任务分工 → 下达指令</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_20" name="现场处置">
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+      <bpmn:outgoing>Flow_21</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：实施救援、控制险情、人员疏散
+预案摘录：#### 2.2.4 处置程序 发生险情时，现场处置小组立即开展先期应急处置工作，同时上报项目部应急救援领导小组，项目部应急救援领导小组获取事故的险情报告后，立即对险情进行评估，根据险情评估结果确定响应等级并启动预案。 其中，应急响应、后期处置等，详见第一章总则1.6、1.7。 具体现场处置流程如下：…
+责任主体：工程抢险组、医疗救护组、综合协调组
+所需资源：抢险设备、医疗物资、交通管制设施
+任务路径：总体应急目标 → 现场处置</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_21" name="人员救护">
+      <bpmn:incoming>Flow_21</bpmn:incoming>
+      <bpmn:outgoing>Flow_22</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：现场急救、转运医院
+责任主体：医疗救护组
+所需资源：急救药品、担架、救护车
+任务路径：总体应急目标 → 现场处置 → 人员救护</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_22" name="现场急救">
+      <bpmn:incoming>Flow_22</bpmn:incoming>
+      <bpmn:outgoing>Flow_23</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：止血、包扎、心肺复苏
+责任主体：医疗救护组
+所需资源：急救药品、担架
+任务路径：总体应急目标 → 现场处置 → 人员救护 → 现场急救</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_23" name="医院转运">
+      <bpmn:incoming>Flow_23</bpmn:incoming>
+      <bpmn:outgoing>Flow_24</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：联系120并护送伤员
+责任主体：医疗救护组
+所需资源：救护车、转运路线
+任务路径：总体应急目标 → 现场处置 → 人员救护 → 医院转运</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_24" name="工程抢险">
+      <bpmn:incoming>Flow_24</bpmn:incoming>
+      <bpmn:outgoing>Flow_25</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：设备抢险、险情控制
+责任主体：工程抢险组
+所需资源：排水泵、堵漏工具、吊装设备
+任务路径：总体应急目标 → 现场处置 → 工程抢险</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_25" name="封锁险区">
+      <bpmn:incoming>Flow_25</bpmn:incoming>
+      <bpmn:outgoing>Flow_26</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：设立警戒线，禁止无关人员进入
+责任主体：工程抢险组
+所需资源：警示标志、围栏
+任务路径：总体应急目标 → 现场处置 → 工程抢险 → 封锁险区</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_26" name="险情控制">
+      <bpmn:incoming>Flow_26</bpmn:incoming>
+      <bpmn:outgoing>Flow_27</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：排水、堵漏、加固等措施
+责任主体：工程抢险组
+所需资源：抢险设备
+任务路径：总体应急目标 → 现场处置 → 工程抢险 → 险情控制</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_27" name="综合协调">
+      <bpmn:incoming>Flow_27</bpmn:incoming>
+      <bpmn:outgoing>Flow_28</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：交通管制、人员疏散、现场保护
+责任主体：综合协调组
+所需资源：警示标志、交通管制设施
+任务路径：总体应急目标 → 现场处置 → 综合协调</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_28" name="疏散人员">
+      <bpmn:incoming>Flow_28</bpmn:incoming>
+      <bpmn:outgoing>Flow_29</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：组织施工人员撤离危险区
+责任主体：综合协调组
+所需资源：交通管制设施
+任务路径：总体应急目标 → 现场处置 → 综合协调 → 疏散人员</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_29" name="信息联络">
+      <bpmn:incoming>Flow_29</bpmn:incoming>
+      <bpmn:outgoing>Flow_30</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：对内传达、对外联络
+责任主体：信息联络组
+所需资源：通信装备
+任务路径：总体应急目标 → 现场处置 → 信息联络</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_30" name="外部联络">
+      <bpmn:incoming>Flow_30</bpmn:incoming>
+      <bpmn:outgoing>Flow_31</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：联系医院、政府部门
+责任主体：信息联络组
+所需资源：通讯设备
+任务路径：总体应急目标 → 现场处置 → 信息联络 → 外部联络</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_31" name="后期恢复">
+      <bpmn:incoming>Flow_31</bpmn:incoming>
+      <bpmn:outgoing>Flow_32</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：事故调查、善后处置、总结评估
+责任主体：善后处置组、技术支持组
+所需资源：法律支持、补偿资金、评估报告
+任务路径：总体应急目标 → 后期恢复</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_32" name="善后工作">
+      <bpmn:incoming>Flow_32</bpmn:incoming>
+      <bpmn:outgoing>Flow_33</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：人员安置、补偿、心理安抚
+责任主体：善后处置组
+所需资源：补偿资金、安置方案
+任务路径：总体应急目标 → 后期恢复 → 善后工作</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_33" name="心理安抚">
+      <bpmn:incoming>Flow_33</bpmn:incoming>
+      <bpmn:outgoing>Flow_34</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：对伤亡人员家属进行安抚
+责任主体：善后处置组
+所需资源：心理辅导人员
+任务路径：总体应急目标 → 后期恢复 → 善后工作 → 心理安抚</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_34" name="事故调查">
+      <bpmn:incoming>Flow_34</bpmn:incoming>
+      <bpmn:outgoing>Flow_35</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：事故原因调查、责任认定
+责任主体：技术支持组、外部机构
+所需资源：调查报告、法律文件
+任务路径：总体应急目标 → 后期恢复 → 事故调查</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_35" name="资料收集">
+      <bpmn:incoming>Flow_35</bpmn:incoming>
+      <bpmn:outgoing>Flow_36</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：收集事故记录、日志、证据
+责任主体：技术支持组
+所需资源：调查工具
+任务路径：总体应急目标 → 后期恢复 → 事故调查 → 资料收集</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_36" name="总结评估">
+      <bpmn:incoming>Flow_36</bpmn:incoming>
+      <bpmn:outgoing>Flow_37</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：应急响应效果评估
+责任主体：项目部应急领导小组
+所需资源：评估报告
+任务路径：总体应急目标 → 后期恢复 → 总结评估</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Activity_37" name="编写报告">
+      <bpmn:incoming>Flow_37</bpmn:incoming>
+      <bpmn:outgoing>Flow_38</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：形成事故应急评估报告
+责任主体：项目部应急领导小组
+所需资源：总结报告模板
+任务路径：总体应急目标 → 后期恢复 → 总结评估 → 编写报告</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_ResponseComplete" name="响应结束">
+      <bpmn:incoming>Flow_38</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_WaterIncident" targetRef="Activity_1" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1" targetRef="Activity_2" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_2" targetRef="Activity_3" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_3" targetRef="Activity_4" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_4" targetRef="Activity_5" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_5" targetRef="Activity_6" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_6" targetRef="Activity_7" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_7" targetRef="Activity_8" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Activity_8" targetRef="Activity_9" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Activity_9" targetRef="Activity_10" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Activity_10" targetRef="Activity_11" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Activity_11" targetRef="Activity_12" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Activity_12" targetRef="Activity_13" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Activity_13" targetRef="Activity_14" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Activity_14" targetRef="Activity_15" />
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Activity_15" targetRef="Activity_16" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Activity_16" targetRef="Activity_17" />
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="Activity_17" targetRef="Activity_18" />
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Activity_18" targetRef="Activity_19" />
+    <bpmn:sequenceFlow id="Flow_20" sourceRef="Activity_19" targetRef="Activity_20" />
+    <bpmn:sequenceFlow id="Flow_21" sourceRef="Activity_20" targetRef="Activity_21" />
+    <bpmn:sequenceFlow id="Flow_22" sourceRef="Activity_21" targetRef="Activity_22" />
+    <bpmn:sequenceFlow id="Flow_23" sourceRef="Activity_22" targetRef="Activity_23" />
+    <bpmn:sequenceFlow id="Flow_24" sourceRef="Activity_23" targetRef="Activity_24" />
+    <bpmn:sequenceFlow id="Flow_25" sourceRef="Activity_24" targetRef="Activity_25" />
+    <bpmn:sequenceFlow id="Flow_26" sourceRef="Activity_25" targetRef="Activity_26" />
+    <bpmn:sequenceFlow id="Flow_27" sourceRef="Activity_26" targetRef="Activity_27" />
+    <bpmn:sequenceFlow id="Flow_28" sourceRef="Activity_27" targetRef="Activity_28" />
+    <bpmn:sequenceFlow id="Flow_29" sourceRef="Activity_28" targetRef="Activity_29" />
+    <bpmn:sequenceFlow id="Flow_30" sourceRef="Activity_29" targetRef="Activity_30" />
+    <bpmn:sequenceFlow id="Flow_31" sourceRef="Activity_30" targetRef="Activity_31" />
+    <bpmn:sequenceFlow id="Flow_32" sourceRef="Activity_31" targetRef="Activity_32" />
+    <bpmn:sequenceFlow id="Flow_33" sourceRef="Activity_32" targetRef="Activity_33" />
+    <bpmn:sequenceFlow id="Flow_34" sourceRef="Activity_33" targetRef="Activity_34" />
+    <bpmn:sequenceFlow id="Flow_35" sourceRef="Activity_34" targetRef="Activity_35" />
+    <bpmn:sequenceFlow id="Flow_36" sourceRef="Activity_35" targetRef="Activity_36" />
+    <bpmn:sequenceFlow id="Flow_37" sourceRef="Activity_36" targetRef="Activity_37" />
+    <bpmn:sequenceFlow id="Flow_38" sourceRef="Activity_37" targetRef="EndEvent_ResponseComplete" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_WaterTrafficEmergency">
+    <bpmndi:BPMNPlane id="BPMNPlane_WaterTrafficEmergency" bpmnElement="Process_WaterTrafficEmergency">
+      <bpmndi:BPMNShape id="StartEvent_WaterIncident_di" bpmnElement="StartEvent_WaterIncident">
+        <dc:Bounds x="282.00" y="60.00" width="36.00" height="36.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1_di" bpmnElement="Activity_1">
+        <dc:Bounds x="200.00" y="180.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_2_di" bpmnElement="Activity_2">
+        <dc:Bounds x="200.00" y="300.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_3_di" bpmnElement="Activity_3">
+        <dc:Bounds x="200.00" y="420.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_4_di" bpmnElement="Activity_4">
+        <dc:Bounds x="200.00" y="540.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_5_di" bpmnElement="Activity_5">
+        <dc:Bounds x="200.00" y="660.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_6_di" bpmnElement="Activity_6">
+        <dc:Bounds x="200.00" y="780.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_7_di" bpmnElement="Activity_7">
+        <dc:Bounds x="200.00" y="900.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_8_di" bpmnElement="Activity_8">
+        <dc:Bounds x="200.00" y="1020.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_9_di" bpmnElement="Activity_9">
+        <dc:Bounds x="200.00" y="1140.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10_di" bpmnElement="Activity_10">
+        <dc:Bounds x="200.00" y="1260.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11_di" bpmnElement="Activity_11">
+        <dc:Bounds x="200.00" y="1380.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12_di" bpmnElement="Activity_12">
+        <dc:Bounds x="200.00" y="1500.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13_di" bpmnElement="Activity_13">
+        <dc:Bounds x="200.00" y="1620.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_14_di" bpmnElement="Activity_14">
+        <dc:Bounds x="200.00" y="1740.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15_di" bpmnElement="Activity_15">
+        <dc:Bounds x="200.00" y="1860.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16_di" bpmnElement="Activity_16">
+        <dc:Bounds x="200.00" y="1980.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17_di" bpmnElement="Activity_17">
+        <dc:Bounds x="200.00" y="2100.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18_di" bpmnElement="Activity_18">
+        <dc:Bounds x="200.00" y="2220.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19_di" bpmnElement="Activity_19">
+        <dc:Bounds x="200.00" y="2340.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_20_di" bpmnElement="Activity_20">
+        <dc:Bounds x="200.00" y="2460.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_21_di" bpmnElement="Activity_21">
+        <dc:Bounds x="200.00" y="2580.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_22_di" bpmnElement="Activity_22">
+        <dc:Bounds x="200.00" y="2700.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_23_di" bpmnElement="Activity_23">
+        <dc:Bounds x="200.00" y="2820.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_24_di" bpmnElement="Activity_24">
+        <dc:Bounds x="200.00" y="2940.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_25_di" bpmnElement="Activity_25">
+        <dc:Bounds x="200.00" y="3060.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_26_di" bpmnElement="Activity_26">
+        <dc:Bounds x="200.00" y="3180.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_27_di" bpmnElement="Activity_27">
+        <dc:Bounds x="200.00" y="3300.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_28_di" bpmnElement="Activity_28">
+        <dc:Bounds x="200.00" y="3420.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_29_di" bpmnElement="Activity_29">
+        <dc:Bounds x="200.00" y="3540.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_30_di" bpmnElement="Activity_30">
+        <dc:Bounds x="200.00" y="3660.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_31_di" bpmnElement="Activity_31">
+        <dc:Bounds x="200.00" y="3780.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_32_di" bpmnElement="Activity_32">
+        <dc:Bounds x="200.00" y="3900.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_33_di" bpmnElement="Activity_33">
+        <dc:Bounds x="200.00" y="4020.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_34_di" bpmnElement="Activity_34">
+        <dc:Bounds x="200.00" y="4140.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_35_di" bpmnElement="Activity_35">
+        <dc:Bounds x="200.00" y="4260.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_36_di" bpmnElement="Activity_36">
+        <dc:Bounds x="200.00" y="4380.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_37_di" bpmnElement="Activity_37">
+        <dc:Bounds x="200.00" y="4500.00" width="200.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_ResponseComplete_di" bpmnElement="EndEvent_ResponseComplete">
+        <dc:Bounds x="282.00" y="4620.00" width="36.00" height="36.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="300.00" y="96.00" />
+        <di:waypoint x="300.00" y="180.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="300.00" y="260.00" />
+        <di:waypoint x="300.00" y="300.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="300.00" y="380.00" />
+        <di:waypoint x="300.00" y="420.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="300.00" y="500.00" />
+        <di:waypoint x="300.00" y="540.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="300.00" y="620.00" />
+        <di:waypoint x="300.00" y="660.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="300.00" y="740.00" />
+        <di:waypoint x="300.00" y="780.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="300.00" y="860.00" />
+        <di:waypoint x="300.00" y="900.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="300.00" y="980.00" />
+        <di:waypoint x="300.00" y="1020.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="300.00" y="1100.00" />
+        <di:waypoint x="300.00" y="1140.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="300.00" y="1220.00" />
+        <di:waypoint x="300.00" y="1260.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="300.00" y="1340.00" />
+        <di:waypoint x="300.00" y="1380.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="300.00" y="1460.00" />
+        <di:waypoint x="300.00" y="1500.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="300.00" y="1580.00" />
+        <di:waypoint x="300.00" y="1620.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="300.00" y="1700.00" />
+        <di:waypoint x="300.00" y="1740.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="300.00" y="1820.00" />
+        <di:waypoint x="300.00" y="1860.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+        <di:waypoint x="300.00" y="1940.00" />
+        <di:waypoint x="300.00" y="1980.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="300.00" y="2060.00" />
+        <di:waypoint x="300.00" y="2100.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <di:waypoint x="300.00" y="2180.00" />
+        <di:waypoint x="300.00" y="2220.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+        <di:waypoint x="300.00" y="2300.00" />
+        <di:waypoint x="300.00" y="2340.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
+        <di:waypoint x="300.00" y="2420.00" />
+        <di:waypoint x="300.00" y="2460.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_21_di" bpmnElement="Flow_21">
+        <di:waypoint x="300.00" y="2540.00" />
+        <di:waypoint x="300.00" y="2580.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22">
+        <di:waypoint x="300.00" y="2660.00" />
+        <di:waypoint x="300.00" y="2700.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_23_di" bpmnElement="Flow_23">
+        <di:waypoint x="300.00" y="2780.00" />
+        <di:waypoint x="300.00" y="2820.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_24_di" bpmnElement="Flow_24">
+        <di:waypoint x="300.00" y="2900.00" />
+        <di:waypoint x="300.00" y="2940.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_25_di" bpmnElement="Flow_25">
+        <di:waypoint x="300.00" y="3020.00" />
+        <di:waypoint x="300.00" y="3060.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_26_di" bpmnElement="Flow_26">
+        <di:waypoint x="300.00" y="3140.00" />
+        <di:waypoint x="300.00" y="3180.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_27_di" bpmnElement="Flow_27">
+        <di:waypoint x="300.00" y="3260.00" />
+        <di:waypoint x="300.00" y="3300.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_28_di" bpmnElement="Flow_28">
+        <di:waypoint x="300.00" y="3380.00" />
+        <di:waypoint x="300.00" y="3420.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_29_di" bpmnElement="Flow_29">
+        <di:waypoint x="300.00" y="3500.00" />
+        <di:waypoint x="300.00" y="3540.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_30_di" bpmnElement="Flow_30">
+        <di:waypoint x="300.00" y="3620.00" />
+        <di:waypoint x="300.00" y="3660.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_31_di" bpmnElement="Flow_31">
+        <di:waypoint x="300.00" y="3740.00" />
+        <di:waypoint x="300.00" y="3780.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_32_di" bpmnElement="Flow_32">
+        <di:waypoint x="300.00" y="3860.00" />
+        <di:waypoint x="300.00" y="3900.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_33_di" bpmnElement="Flow_33">
+        <di:waypoint x="300.00" y="3980.00" />
+        <di:waypoint x="300.00" y="4020.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_34_di" bpmnElement="Flow_34">
+        <di:waypoint x="300.00" y="4100.00" />
+        <di:waypoint x="300.00" y="4140.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_35_di" bpmnElement="Flow_35">
+        <di:waypoint x="300.00" y="4220.00" />
+        <di:waypoint x="300.00" y="4260.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_36_di" bpmnElement="Flow_36">
+        <di:waypoint x="300.00" y="4340.00" />
+        <di:waypoint x="300.00" y="4380.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_37_di" bpmnElement="Flow_37">
+        <di:waypoint x="300.00" y="4460.00" />
+        <di:waypoint x="300.00" y="4500.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_38_di" bpmnElement="Flow_38">
+        <di:waypoint x="300.00" y="4580.00" />
+        <di:waypoint x="300.00" y="4620.00" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
