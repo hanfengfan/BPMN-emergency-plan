@@ -19,7 +19,6 @@ import argparse
 import csv
 import re
 import textwrap
-from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
@@ -103,6 +102,42 @@ class TaskEnrichment:
     name: Optional[str] = None
     description: Optional[str] = None
     plan_context: Optional[str] = None
+
+
+@dataclass
+class FlowNodeSpec:
+    """Description of a BPMN flow node in the project process."""
+
+    element_id: str
+    element_type: str
+    name: str
+    lane: Optional[str]
+    x: float
+    task: Optional[TaskNode] = None
+    y_offset: float = 0.0
+    documentation: Optional[str] = None
+
+
+@dataclass
+class LaneSpec:
+    """Metadata for a BPMN lane."""
+
+    lane_id: str
+    name: str
+    index: int
+    flow_nodes: List[str] = field(default_factory=list)
+
+
+@dataclass
+class DataObjectSpec:
+    """Description of a data object reference in the BPMN model."""
+
+    data_id: str
+    ref_id: str
+    name: str
+    lane: str
+    x: float
+    y_offset: float = 0.0
 
 
 TASK_ENRICHMENTS: Dict[str, TaskEnrichment] = {
@@ -416,130 +451,515 @@ def apply_task_enrichments(
             node.plan_context = enrichment.plan_context
 
 
-def build_lane_map(
-    nodes: Sequence[TaskNode],
-) -> Tuple[List[Dict[str, object]], Dict[str, str]]:
-    lane_map: "OrderedDict[str, Dict[str, object]]" = OrderedDict()
-    node_to_lane: Dict[str, str] = {}
-    for node in nodes:
-        responsibles = node.responsibles or ["未指定责任主体"]
-        primary = responsibles[0]
-        lane = lane_map.get(primary)
-        if lane is None:
-            lane = {
-                "id": f"Lane_{len(lane_map) + 1}",
-                "name": primary,
-                "flow_nodes": [],
-            }
-            lane_map[primary] = lane
-        lane["flow_nodes"].append(node.bpmn_id)
-        node_to_lane[node.bpmn_id] = lane["id"]
-        for additional in responsibles[1:]:
-            if additional not in lane_map:
-                lane_map[additional] = {
-                    "id": f"Lane_{len(lane_map) + 1}",
-                    "name": additional,
-                    "flow_nodes": [],
-                }
-    return list(lane_map.values()), node_to_lane
 
 
-def layout_positions(
-    ordered_nodes: Sequence[TaskNode],
-    lanes: Sequence[Dict[str, object]],
-    node_to_lane: Dict[str, str],
-    start_id: str,
-    end_id: str,
-) -> Tuple[
-    Dict[str, Tuple[float, float, float, float]],
-    Dict[str, Tuple[float, float, float, float]],
-]:
-    lane_x = 60.0
-    lane_label_width = 140.0
-    lane_gap = 20.0
-    lane_height = 160.0
-    task_width = 180.0
-    task_height = 80.0
-    task_gap_x = 220.0
-    event_size = 36.0
+def build_path_map(root: TaskNode) -> Dict[str, TaskNode]:
+    """Return a mapping from HTA path strings to task nodes."""
 
-    content_start_x = lane_x + lane_label_width + 40.0
-    base_y = 60.0
+    path_map: Dict[str, TaskNode] = {}
 
-    lane_positions: Dict[str, Tuple[float, float, float, float]] = {}
-    lane_index: Dict[str, int] = {}
-    for index, lane in enumerate(lanes):
-        lane_id = lane["id"]
-        lane_index[lane_id] = index
-    if ordered_nodes:
-        max_task_right = content_start_x + (len(ordered_nodes) - 1) * task_gap_x + task_width
-    else:
-        max_task_right = content_start_x + task_width
-    lane_width = max_task_right + 80.0 - lane_x
+    def visit(node: TaskNode, prefix: List[str]) -> None:
+        for child in node.children:
+            new_prefix = prefix + [child.name]
+            path_map[" → ".join(new_prefix)] = child
+            visit(child, new_prefix)
 
-    for lane_id, index in lane_index.items():
-        lane_y = base_y + index * (lane_height + lane_gap)
-        lane_positions[lane_id] = (lane_x, lane_y, lane_width, lane_height)
+    visit(root, [])
+    return path_map
 
-    positions: Dict[str, Tuple[float, float, float, float]] = {}
 
-    for node_index, node in enumerate(ordered_nodes):
-        lane_id = node_to_lane[node.bpmn_id]
-        lane_y = lane_positions[lane_id][1]
-        y_position = lane_y + (lane_height - task_height) / 2.0
-        x_position = content_start_x + node_index * task_gap_x
-        positions[node.bpmn_id] = (x_position, y_position, task_width, task_height)
+def connection_points(
+    source_bounds: Tuple[float, float, float, float],
+    target_bounds: Tuple[float, float, float, float],
+) -> List[Tuple[float, float]]:
+    """Return two points describing a straight connector between shapes."""
 
-    if ordered_nodes:
-        first_lane_id = node_to_lane[ordered_nodes[0].bpmn_id]
-        last_lane_id = node_to_lane[ordered_nodes[-1].bpmn_id]
-        first_lane_y = lane_positions[first_lane_id][1]
-        last_lane_y = lane_positions[last_lane_id][1]
-    else:
-        first_lane_y = base_y
-        last_lane_y = base_y
-
-    start_x = content_start_x - event_size - 40.0
-    start_y = first_lane_y + (lane_height - event_size) / 2.0
-    end_x = max_task_right + 40.0
-    end_y = last_lane_y + (lane_height - event_size) / 2.0
-
-    positions[start_id] = (start_x, start_y, event_size, event_size)
-    positions[end_id] = (end_x, end_y, event_size, event_size)
-
-    return positions, lane_positions
+    sx, sy, sw, sh = source_bounds
+    tx, ty, tw, th = target_bounds
+    if sx + sw <= tx:
+        return [(sx + sw, sy + sh / 2.0), (tx, ty + th / 2.0)]
+    if tx + tw <= sx:
+        return [(sx, sy + sh / 2.0), (tx + tw, ty + th / 2.0)]
+    if sy + sh <= ty:
+        return [(sx + sw / 2.0, sy + sh), (tx + tw / 2.0, ty)]
+    return [(sx + sw / 2.0, sy), (tx + tw / 2.0, ty + th)]
 
 
 def build_bpmn(root: TaskNode, output_path: Path) -> None:
-    ordered_nodes = list(iterate_nodes(root))
-    for index, node in enumerate(ordered_nodes, start=1):
-        node.bpmn_id = f"Activity_{index}"
-        node.incoming.clear()
-        node.outgoing.clear()
+    path_map = build_path_map(root)
+
+    def task_node(path: str) -> TaskNode:
+        try:
+            return path_map[path]
+        except KeyError as exc:
+            raise KeyError(f"HTA path '{path}' was not found when building the BPMN model") from exc
 
     process_id = "Process_WaterTrafficEmergency"
-    start_id = "StartEvent_WaterIncident"
+    external_process_id = "Process_ExternalSupport"
+    collaboration_id = "Collaboration_WaterTrafficEmergency"
+    start_id = "StartEvent_IncidentDetected"
     end_id = "EndEvent_ResponseComplete"
 
-    sequence_flows: List[Tuple[str, str, str]] = []
+    lane_order = [
+        "现场处置小组",
+        "信息联络组",
+        "项目部应急领导小组",
+        "项目部领导",
+        "医疗救护组",
+        "工程抢险组",
+        "综合协调组",
+        "善后处置组",
+        "技术支持组",
+    ]
 
-    previous_id = start_id
-    previous_node: Optional[TaskNode] = None
-    for node in ordered_nodes:
-        flow_id = f"Flow_{len(sequence_flows) + 1}"
-        sequence_flows.append((flow_id, previous_id, node.bpmn_id))
-        node.incoming.append(flow_id)
-        if previous_node is not None:
-            previous_node.outgoing.append(flow_id)
-        previous_id = node.bpmn_id
-        previous_node = node
+    lanes: List[LaneSpec] = [
+        LaneSpec(lane_id=f"Lane_{index + 1}", name=name, index=index)
+        for index, name in enumerate(lane_order)
+    ]
+    lane_by_name = {lane.name: lane for lane in lanes}
 
-    final_flow_id = f"Flow_{len(sequence_flows) + 1}"
-    sequence_flows.append((final_flow_id, previous_id, end_id))
-    if previous_node is not None:
-        previous_node.outgoing.append(final_flow_id)
+    project_nodes: List[FlowNodeSpec] = [
+        FlowNodeSpec(
+            element_id=start_id,
+            element_type="bpmn:startEvent",
+            name="事故发现",
+            lane="现场处置小组",
+            x=320.0,
+            documentation="现场处置小组发现或接到事故警情，准备启动报告流程。",
+        ),
+        FlowNodeSpec(
+            element_id="Task_ReportIncident",
+            element_type="bpmn:task",
+            name=task_node("事故信息上报启动流程 → 现场人员立即报告险情").name,
+            lane="现场处置小组",
+            x=400.0,
+            task=task_node("事故信息上报启动流程 → 现场人员立即报告险情"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_ConfirmDetails",
+            element_type="bpmn:task",
+            name=task_node("事故信息上报启动流程 → 现场人员立即报告险情 → 明确位置时间损失情况").name,
+            lane="现场处置小组",
+            x=560.0,
+            task=task_node("事故信息上报启动流程 → 现场人员立即报告险情 → 明确位置时间损失情况"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_SummariseSituation",
+            element_type="bpmn:task",
+            name=task_node("事故信息上报启动流程 → 项目部汇总并评估险情").name,
+            lane="信息联络组",
+            x=720.0,
+            task=task_node("事故信息上报启动流程 → 项目部汇总并评估险情"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_VerifyWithUnits",
+            element_type="bpmn:task",
+            name=task_node("事故信息上报启动流程 → 项目部汇总并评估险情 → 与相关单位核实情况").name,
+            lane="信息联络组",
+            x=880.0,
+            task=task_node("事故信息上报启动流程 → 项目部汇总并评估险情 → 与相关单位核实情况"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_ReportAuthorities",
+            element_type="bpmn:task",
+            name=task_node("事故信息上报启动流程 → 向主管部门同步报告").name,
+            lane="信息联络组",
+            x=1040.0,
+            task=task_node("事故信息上报启动流程 → 向主管部门同步报告"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_AssessResponseLevel",
+            element_type="bpmn:task",
+            name=task_node("启动项目应急响应程序 → 研判并确定响应等级").name,
+            lane="项目部应急领导小组",
+            x=1200.0,
+            task=task_node("启动项目应急响应程序 → 研判并确定响应等级"),
+        ),
+        FlowNodeSpec(
+            element_id="Gateway_ResponseLevel",
+            element_type="bpmn:exclusiveGateway",
+            name="响应等级判定",
+            lane="项目部应急领导小组",
+            x=1340.0,
+            documentation="根据核实后的险情，判断是否需要升级为社会救援级别。",
+        ),
+        FlowNodeSpec(
+            element_id="Task_InternalResponse",
+            element_type="bpmn:task",
+            name=task_node("启动项目应急响应程序 → 研判并确定响应等级 → 组织项目内部自救处置").name,
+            lane="项目部应急领导小组",
+            x=1500.0,
+            task=task_node("启动项目应急响应程序 → 研判并确定响应等级 → 组织项目内部自救处置"),
+            y_offset=-20.0,
+        ),
+        FlowNodeSpec(
+            element_id="Task_RequestExternalSupport",
+            element_type="bpmn:task",
+            name=task_node("启动项目应急响应程序 → 研判并确定响应等级 → 协调外部救援力量介入").name,
+            lane="项目部应急领导小组",
+            x=1500.0,
+            task=task_node("启动项目应急响应程序 → 研判并确定响应等级 → 协调外部救援力量介入"),
+            y_offset=20.0,
+        ),
+        FlowNodeSpec(
+            element_id="Gateway_ResponseMerge",
+            element_type="bpmn:exclusiveGateway",
+            name="响应路径汇合",
+            lane="项目部应急领导小组",
+            x=1660.0,
+        ),
+        FlowNodeSpec(
+            element_id="Task_IssueOrders",
+            element_type="bpmn:task",
+            name=task_node("启动项目应急响应程序 → 明确各应急小组任务 → 向各小组下达现场处置指令").name,
+            lane="项目部领导",
+            x=1820.0,
+            task=task_node("启动项目应急响应程序 → 明确各应急小组任务 → 向各小组下达现场处置指令"),
+        ),
+        FlowNodeSpec(
+            element_id="Gateway_ParallelSplit",
+            element_type="bpmn:parallelGateway",
+            name="指令同步各小组",
+            lane="项目部领导",
+            x=1960.0,
+        ),
+        FlowNodeSpec(
+            element_id="Task_MedicalAid",
+            element_type="bpmn:task",
+            name=task_node("组织现场抢险救援行动 → 安排受伤人员救治流程 → 实施现场紧急救护").name,
+            lane="医疗救护组",
+            x=2120.0,
+            task=task_node("组织现场抢险救援行动 → 安排受伤人员救治流程 → 实施现场紧急救护"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_EngineeringControl",
+            element_type="bpmn:task",
+            name=task_node("组织现场抢险救援行动 → 调配装备进行工程抢险 → 排水堵漏稳定结构").name,
+            lane="工程抢险组",
+            x=2120.0,
+            task=task_node("组织现场抢险救援行动 → 调配装备进行工程抢险 → 排水堵漏稳定结构"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_Evacuation",
+            element_type="bpmn:task",
+            name=task_node("组织现场抢险救援行动 → 协调交通疏导与现场秩序 → 组织撤离非作业人员").name,
+            lane="综合协调组",
+            x=2120.0,
+            task=task_node("组织现场抢险救援行动 → 协调交通疏导与现场秩序 → 组织撤离非作业人员"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_Communications",
+            element_type="bpmn:task",
+            name=task_node("组织现场抢险救援行动 → 保持内外通信与信息传递 → 对接医院海事等外部单位").name,
+            lane="信息联络组",
+            x=2120.0,
+            task=task_node("组织现场抢险救援行动 → 保持内外通信与信息传递 → 对接医院海事等外部单位"),
+        ),
+        FlowNodeSpec(
+            element_id="Gateway_ParallelJoin",
+            element_type="bpmn:parallelGateway",
+            name="现场行动反馈",
+            lane="项目部领导",
+            x=2280.0,
+        ),
+        FlowNodeSpec(
+            element_id="Task_PsychologicalSupport",
+            element_type="bpmn:task",
+            name=task_node("进入善后与恢复阶段 → 落实安置补偿和后勤保障 → 提供心理慰藉与家属沟通").name,
+            lane="善后处置组",
+            x=2440.0,
+            task=task_node("进入善后与恢复阶段 → 落实安置补偿和后勤保障 → 提供心理慰藉与家属沟通"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_CollectEvidence",
+            element_type="bpmn:task",
+            name=task_node("进入善后与恢复阶段 → 组织事故调查与责任认定 → 收集日志影像等调查资料").name,
+            lane="技术支持组",
+            x=2600.0,
+            task=task_node("进入善后与恢复阶段 → 组织事故调查与责任认定 → 收集日志影像等调查资料"),
+        ),
+        FlowNodeSpec(
+            element_id="Task_FinalReport",
+            element_type="bpmn:task",
+            name=task_node("进入善后与恢复阶段 → 评估响应成效提出改进 → 形成总结评估书面报告").name,
+            lane="项目部应急领导小组",
+            x=2760.0,
+            task=task_node("进入善后与恢复阶段 → 评估响应成效提出改进 → 形成总结评估书面报告"),
+        ),
+        FlowNodeSpec(
+            element_id=end_id,
+            element_type="bpmn:endEvent",
+            name="响应结束",
+            lane="项目部应急领导小组",
+            x=2900.0,
+        ),
+    ]
 
-    lanes, node_to_lane = build_lane_map(ordered_nodes)
+    for spec in project_nodes:
+        if spec.lane is not None:
+            lane_by_name[spec.lane].flow_nodes.append(spec.element_id)
+
+    data_objects: List[DataObjectSpec] = [
+        DataObjectSpec(
+            data_id="Data_IncidentReport",
+            ref_id="DataRef_IncidentReport",
+            name="险情快报",
+            lane="信息联络组",
+            x=500.0,
+            y_offset=-50.0,
+        ),
+        DataObjectSpec(
+            data_id="Data_ResponseOrders",
+            ref_id="DataRef_ResponseOrders",
+            name="响应指令",
+            lane="项目部领导",
+            x=1880.0,
+            y_offset=-40.0,
+        ),
+        DataObjectSpec(
+            data_id="Data_MedicalRecord",
+            ref_id="DataRef_MedicalRecord",
+            name="医疗救护记录",
+            lane="医疗救护组",
+            x=2240.0,
+        ),
+        DataObjectSpec(
+            data_id="Data_EngineeringLog",
+            ref_id="DataRef_EngineeringLog",
+            name="工程抢险记录",
+            lane="工程抢险组",
+            x=2240.0,
+        ),
+        DataObjectSpec(
+            data_id="Data_StatusUpdates",
+            ref_id="DataRef_StatusUpdates",
+            name="现场联络日志",
+            lane="信息联络组",
+            x=2240.0,
+            y_offset=40.0,
+        ),
+        DataObjectSpec(
+            data_id="Data_FinalReport",
+            ref_id="DataRef_FinalReport",
+            name="事故总结报告",
+            lane="项目部应急领导小组",
+            x=2940.0,
+        ),
+    ]
+
+    sequence_flows = [
+        {"id": "Flow_Start_Report", "source": start_id, "target": "Task_ReportIncident"},
+        {"id": "Flow_Report_Confirm", "source": "Task_ReportIncident", "target": "Task_ConfirmDetails"},
+        {"id": "Flow_Confirm_Summarise", "source": "Task_ConfirmDetails", "target": "Task_SummariseSituation"},
+        {"id": "Flow_Summarise_Verify", "source": "Task_SummariseSituation", "target": "Task_VerifyWithUnits"},
+        {"id": "Flow_Verify_ReportAuthorities", "source": "Task_VerifyWithUnits", "target": "Task_ReportAuthorities"},
+        {"id": "Flow_Report_Assess", "source": "Task_ReportAuthorities", "target": "Task_AssessResponseLevel"},
+        {"id": "Flow_Assess_Gateway", "source": "Task_AssessResponseLevel", "target": "Gateway_ResponseLevel"},
+        {
+            "id": "Flow_Gateway_Internal",
+            "source": "Gateway_ResponseLevel",
+            "target": "Task_InternalResponse",
+            "name": "项目能力充足",
+        },
+        {
+            "id": "Flow_Gateway_External",
+            "source": "Gateway_ResponseLevel",
+            "target": "Task_RequestExternalSupport",
+            "name": "需外部支援",
+        },
+        {"id": "Flow_Internal_Merge", "source": "Task_InternalResponse", "target": "Gateway_ResponseMerge"},
+        {"id": "Flow_External_Merge", "source": "Task_RequestExternalSupport", "target": "Gateway_ResponseMerge"},
+        {"id": "Flow_Merge_IssueOrders", "source": "Gateway_ResponseMerge", "target": "Task_IssueOrders"},
+        {"id": "Flow_IssueOrders_Split", "source": "Task_IssueOrders", "target": "Gateway_ParallelSplit"},
+        {"id": "Flow_Split_Medical", "source": "Gateway_ParallelSplit", "target": "Task_MedicalAid"},
+        {"id": "Flow_Split_Engineering", "source": "Gateway_ParallelSplit", "target": "Task_EngineeringControl"},
+        {"id": "Flow_Split_Evacuation", "source": "Gateway_ParallelSplit", "target": "Task_Evacuation"},
+        {"id": "Flow_Split_Communications", "source": "Gateway_ParallelSplit", "target": "Task_Communications"},
+        {"id": "Flow_Medical_Join", "source": "Task_MedicalAid", "target": "Gateway_ParallelJoin"},
+        {"id": "Flow_Engineering_Join", "source": "Task_EngineeringControl", "target": "Gateway_ParallelJoin"},
+        {"id": "Flow_Evacuation_Join", "source": "Task_Evacuation", "target": "Gateway_ParallelJoin"},
+        {"id": "Flow_Communications_Join", "source": "Task_Communications", "target": "Gateway_ParallelJoin"},
+        {"id": "Flow_Join_PsychSupport", "source": "Gateway_ParallelJoin", "target": "Task_PsychologicalSupport"},
+        {"id": "Flow_PsychSupport_CollectEvidence", "source": "Task_PsychologicalSupport", "target": "Task_CollectEvidence"},
+        {"id": "Flow_CollectEvidence_FinalReport", "source": "Task_CollectEvidence", "target": "Task_FinalReport"},
+        {"id": "Flow_FinalReport_End", "source": "Task_FinalReport", "target": end_id},
+    ]
+
+    incoming_map: Dict[str, List[str]] = {spec.element_id: [] for spec in project_nodes}
+    outgoing_map: Dict[str, List[str]] = {spec.element_id: [] for spec in project_nodes}
+    for flow in sequence_flows:
+        outgoing_map[flow["source"]].append(flow["id"])
+        incoming_map[flow["target"]].append(flow["id"])
+
+    message_flows = [
+        {
+            "id": "MessageFlow_GovernmentReport",
+            "name": "事故报告",
+            "source": "Task_ReportAuthorities",
+            "target": "Task_ReceiveReport",
+        },
+        {
+            "id": "MessageFlow_SupportRequest",
+            "name": "支援请求",
+            "source": "Task_RequestExternalSupport",
+            "target": "Task_ProvideGuidance",
+        },
+        {
+            "id": "MessageFlow_StatusUpdate",
+            "name": "现场动态",
+            "source": "Task_Communications",
+            "target": "Task_ProvideGuidance",
+        },
+    ]
+
+    external_nodes: List[FlowNodeSpec] = [
+        FlowNodeSpec(
+            element_id="StartEvent_ExternalAlert",
+            element_type="bpmn:startEvent",
+            name="接收通报",
+            lane=None,
+            x=1040.0,
+            documentation="政府及专业机构接到事故报告，启动协同程序。",
+        ),
+        FlowNodeSpec(
+            element_id="Task_ReceiveReport",
+            element_type="bpmn:task",
+            name="确认事故信息",
+            lane=None,
+            x=1200.0,
+            documentation="主管部门核实通报内容并登记险情要素。",
+        ),
+        FlowNodeSpec(
+            element_id="Task_ProvideGuidance",
+            element_type="bpmn:task",
+            name="提供指挥支援",
+            lane=None,
+            x=1380.0,
+            documentation="根据项目请求调配外部力量并反馈处置指令。",
+        ),
+        FlowNodeSpec(
+            element_id="EndEvent_ExternalComplete",
+            element_type="bpmn:endEvent",
+            name="协同结束",
+            lane=None,
+            x=1520.0,
+        ),
+    ]
+
+    external_sequence_flows = [
+        {
+            "id": "Flow_ExternalStart_Receive",
+            "source": "StartEvent_ExternalAlert",
+            "target": "Task_ReceiveReport",
+        },
+        {
+            "id": "Flow_ExternalReceive_Support",
+            "source": "Task_ReceiveReport",
+            "target": "Task_ProvideGuidance",
+        },
+        {
+            "id": "Flow_ExternalSupport_End",
+            "source": "Task_ProvideGuidance",
+            "target": "EndEvent_ExternalComplete",
+        },
+    ]
+
+    external_incoming: Dict[str, List[str]] = {spec.element_id: [] for spec in external_nodes}
+    external_outgoing: Dict[str, List[str]] = {spec.element_id: [] for spec in external_nodes}
+    for flow in external_sequence_flows:
+        external_outgoing[flow["source"]].append(flow["id"])
+        external_incoming[flow["target"]].append(flow["id"])
+
+    task_data_io: Dict[str, Dict[str, List[Tuple[str, str]]]] = {
+        "Task_ReportIncident": {
+            "outputs": [("DataAssoc_ReportIncident_Output", "DataRef_IncidentReport")],
+        },
+        "Task_SummariseSituation": {
+            "inputs": [("DataAssoc_Summarise_Input", "DataRef_IncidentReport")],
+        },
+        "Task_IssueOrders": {
+            "outputs": [("DataAssoc_IssueOrders_Output", "DataRef_ResponseOrders")],
+        },
+        "Task_MedicalAid": {
+            "inputs": [("DataAssoc_Medical_Input", "DataRef_ResponseOrders")],
+            "outputs": [("DataAssoc_Medical_Output", "DataRef_MedicalRecord")],
+        },
+        "Task_EngineeringControl": {
+            "inputs": [("DataAssoc_Engineering_Input", "DataRef_ResponseOrders")],
+            "outputs": [("DataAssoc_Engineering_Output", "DataRef_EngineeringLog")],
+        },
+        "Task_Evacuation": {
+            "inputs": [("DataAssoc_Evacuation_Input", "DataRef_ResponseOrders")],
+        },
+        "Task_Communications": {
+            "inputs": [("DataAssoc_Communications_Input", "DataRef_ResponseOrders")],
+            "outputs": [("DataAssoc_Communications_Output", "DataRef_StatusUpdates")],
+        },
+        "Task_FinalReport": {
+            "inputs": [
+                ("DataAssoc_Final_Input_Response", "DataRef_ResponseOrders"),
+                ("DataAssoc_Final_Input_Medical", "DataRef_MedicalRecord"),
+                ("DataAssoc_Final_Input_Engineering", "DataRef_EngineeringLog"),
+                ("DataAssoc_Final_Input_Status", "DataRef_StatusUpdates"),
+            ],
+            "outputs": [("DataAssoc_Final_Output", "DataRef_FinalReport")],
+        },
+    }
+
+    lane_height = 120.0
+    pool_x = 120.0
+    pool_y = 100.0
+    pool_width = 3200.0
+    project_height = lane_height * len(lanes)
+    external_pool_y = pool_y + project_height + 160.0
+    external_pool_height = 160.0
+
+    lane_positions: Dict[str, Tuple[float, float, float, float]] = {
+        lane.lane_id: (pool_x, pool_y + lane.index * lane_height, pool_width, lane_height)
+        for lane in lanes
+    }
+
+    element_sizes: Dict[str, Tuple[float, float]] = {
+        "bpmn:task": (140.0, 80.0),
+        "bpmn:startEvent": (36.0, 36.0),
+        "bpmn:endEvent": (36.0, 36.0),
+        "bpmn:exclusiveGateway": (50.0, 50.0),
+        "bpmn:parallelGateway": (50.0, 50.0),
+    }
+
+    positions: Dict[str, Tuple[float, float, float, float]] = {}
+    for spec in project_nodes:
+        width, height = element_sizes.get(spec.element_type, (120.0, 60.0))
+        lane = lane_by_name[spec.lane] if spec.lane else None
+        if lane is None:
+            continue
+        lane_bounds = lane_positions[lane.lane_id]
+        y = lane_bounds[1] + (lane_bounds[3] - height) / 2.0 + spec.y_offset
+        positions[spec.element_id] = (spec.x, y, width, height)
+
+    data_object_size = (60.0, 70.0)
+    for data_spec in data_objects:
+        lane_bounds = lane_positions[lane_by_name[data_spec.lane].lane_id]
+        width, height = data_object_size
+        y = lane_bounds[1] + (lane_bounds[3] - height) / 2.0 + data_spec.y_offset
+        positions[data_spec.ref_id] = (data_spec.x, y, width, height)
+
+    external_lane_bounds = (pool_x, external_pool_y, pool_width, external_pool_height)
+    external_center_y = external_lane_bounds[1] + external_lane_bounds[3] / 2.0
+    for spec in external_nodes:
+        width, height = element_sizes.get(spec.element_type, (120.0, 60.0))
+        y = external_center_y - height / 2.0 + spec.y_offset
+        positions[spec.element_id] = (spec.x, y, width, height)
+
+    participant_positions = {
+        "Participant_Project": (pool_x, pool_y, pool_width, project_height),
+        "Participant_External": (
+            external_lane_bounds[0],
+            external_lane_bounds[1],
+            external_lane_bounds[2],
+            external_lane_bounds[3],
+        ),
+    }
 
     definitions = ET.Element(
         "bpmn:definitions",
@@ -548,6 +968,41 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             "targetNamespace": "http://example.com/bpmn/water-traffic-emergency",
         },
     )
+
+    collaboration = ET.SubElement(
+        definitions,
+        "bpmn:collaboration",
+        attrib={"id": collaboration_id},
+    )
+    ET.SubElement(
+        collaboration,
+        "bpmn:participant",
+        attrib={
+            "id": "Participant_Project",
+            "name": "项目部应急组织",
+            "processRef": process_id,
+        },
+    )
+    ET.SubElement(
+        collaboration,
+        "bpmn:participant",
+        attrib={
+            "id": "Participant_External",
+            "name": "政府及外部支援机构",
+            "processRef": external_process_id,
+        },
+    )
+    for message in message_flows:
+        ET.SubElement(
+            collaboration,
+            "bpmn:messageFlow",
+            attrib={
+                "id": message["id"],
+                "name": message["name"],
+                "sourceRef": message["source"],
+                "targetRef": message["target"],
+            },
+        )
 
     process = ET.SubElement(
         definitions,
@@ -559,47 +1014,130 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
         },
     )
 
-    lane_set = ET.SubElement(process, "bpmn:laneSet", attrib={"id": "LaneSet_1"})
+    lane_set = ET.SubElement(process, "bpmn:laneSet", attrib={"id": "LaneSet_Project"})
     for lane in lanes:
         lane_element = ET.SubElement(
             lane_set,
             "bpmn:lane",
-            attrib={"id": lane["id"], "name": lane["name"]},
+            attrib={"id": lane.lane_id, "name": lane.name},
         )
-        for flow_node in lane["flow_nodes"]:
+        for flow_node in lane.flow_nodes:
             ET.SubElement(lane_element, "bpmn:flowNodeRef").text = flow_node
 
-    start_event = ET.SubElement(
-        process,
-        "bpmn:startEvent",
-        attrib={"id": start_id, "name": "事故发现/预警"},
-    )
-    ET.SubElement(start_event, "bpmn:outgoing").text = sequence_flows[0][0]
-
-    for node in ordered_nodes:
-        attributes = {"id": node.bpmn_id, "name": node.name}
-        task_element = ET.SubElement(process, "bpmn:task", attrib=attributes)
-        for incoming in node.incoming:
-            ET.SubElement(task_element, "bpmn:incoming").text = incoming
-        for outgoing in node.outgoing:
-            ET.SubElement(task_element, "bpmn:outgoing").text = outgoing
-        documentation = ET.SubElement(task_element, "bpmn:documentation")
-        documentation.text = node.documentation
-    end_event = ET.SubElement(
-        process,
-        "bpmn:endEvent",
-        attrib={"id": end_id, "name": "响应结束"},
-    )
-    ET.SubElement(end_event, "bpmn:incoming").text = sequence_flows[-1][0]
-    for flow_id, source_id, target_id in sequence_flows:
+    for data_spec in data_objects:
         ET.SubElement(
             process,
-            "bpmn:sequenceFlow",
-            attrib={"id": flow_id, "sourceRef": source_id, "targetRef": target_id},
+            "bpmn:dataObject",
+            attrib={"id": data_spec.data_id, "name": data_spec.name},
         )
-    positions, lane_positions = layout_positions(
-        ordered_nodes, lanes, node_to_lane, start_id, end_id
+        ET.SubElement(
+            process,
+            "bpmn:dataObjectReference",
+            attrib={
+                "id": data_spec.ref_id,
+                "dataObjectRef": data_spec.data_id,
+                "name": data_spec.name,
+            },
+        )
+
+    data_association_edges: List[Tuple[str, str, str, str]] = []
+    for spec in project_nodes:
+        element = ET.SubElement(
+            process,
+            spec.element_type,
+            attrib={"id": spec.element_id, "name": spec.name},
+        )
+        for flow_id in incoming_map.get(spec.element_id, []):
+            ET.SubElement(element, "bpmn:incoming").text = flow_id
+        for flow_id in outgoing_map.get(spec.element_id, []):
+            ET.SubElement(element, "bpmn:outgoing").text = flow_id
+        documentation = spec.documentation or (spec.task.documentation if spec.task else "")
+        if documentation:
+            doc = ET.SubElement(element, "bpmn:documentation")
+            doc.text = documentation
+        if spec.element_type == "bpmn:task" and spec.element_id in task_data_io:
+            io_config = task_data_io[spec.element_id]
+            inputs = io_config.get("inputs", [])
+            outputs = io_config.get("outputs", [])
+            io_spec = ET.SubElement(element, "bpmn:ioSpecification")
+            input_ids: List[str] = []
+            output_ids: List[str] = []
+            for index, _ in enumerate(inputs, start=1):
+                data_input_id = f"{spec.element_id}_Input_{index}"
+                ET.SubElement(io_spec, "bpmn:dataInput", attrib={"id": data_input_id})
+                input_ids.append(data_input_id)
+            for index, _ in enumerate(outputs, start=1):
+                data_output_id = f"{spec.element_id}_Output_{index}"
+                ET.SubElement(io_spec, "bpmn:dataOutput", attrib={"id": data_output_id})
+                output_ids.append(data_output_id)
+            if input_ids:
+                input_set = ET.SubElement(io_spec, "bpmn:inputSet")
+                for data_input_id in input_ids:
+                    ET.SubElement(input_set, "bpmn:dataInputRefs").text = data_input_id
+            if output_ids:
+                output_set = ET.SubElement(io_spec, "bpmn:outputSet")
+                for data_output_id in output_ids:
+                    ET.SubElement(output_set, "bpmn:dataOutputRefs").text = data_output_id
+            for (assoc_id, data_ref), data_input_id in zip(inputs, input_ids):
+                assoc = ET.SubElement(
+                    element,
+                    "bpmn:dataInputAssociation",
+                    attrib={"id": assoc_id},
+                )
+                ET.SubElement(assoc, "bpmn:sourceRef").text = data_ref
+                ET.SubElement(assoc, "bpmn:targetRef").text = data_input_id
+                data_association_edges.append(("input", assoc_id, data_ref, spec.element_id))
+            for (assoc_id, data_ref), data_output_id in zip(outputs, output_ids):
+                assoc = ET.SubElement(
+                    element,
+                    "bpmn:dataOutputAssociation",
+                    attrib={"id": assoc_id},
+                )
+                ET.SubElement(assoc, "bpmn:sourceRef").text = data_output_id
+                ET.SubElement(assoc, "bpmn:targetRef").text = data_ref
+                data_association_edges.append(("output", assoc_id, spec.element_id, data_ref))
+
+    for flow in sequence_flows:
+        attributes = {
+            "id": flow["id"],
+            "sourceRef": flow["source"],
+            "targetRef": flow["target"],
+        }
+        if flow.get("name"):
+            attributes["name"] = flow["name"]
+        ET.SubElement(process, "bpmn:sequenceFlow", attrib=attributes)
+
+    external_process = ET.SubElement(
+        definitions,
+        "bpmn:process",
+        attrib={
+            "id": external_process_id,
+            "name": "外部支援协同",
+            "isExecutable": "false",
+        },
     )
+
+    for spec in external_nodes:
+        element = ET.SubElement(
+            external_process,
+            spec.element_type,
+            attrib={"id": spec.element_id, "name": spec.name},
+        )
+        for flow_id in external_incoming.get(spec.element_id, []):
+            ET.SubElement(element, "bpmn:incoming").text = flow_id
+        for flow_id in external_outgoing.get(spec.element_id, []):
+            ET.SubElement(element, "bpmn:outgoing").text = flow_id
+        if spec.documentation:
+            doc = ET.SubElement(element, "bpmn:documentation")
+            doc.text = spec.documentation
+
+    for flow in external_sequence_flows:
+        ET.SubElement(
+            external_process,
+            "bpmn:sequenceFlow",
+            attrib={"id": flow["id"], "sourceRef": flow["source"], "targetRef": flow["target"]},
+        )
+
     diagram = ET.SubElement(
         definitions,
         "bpmndi:BPMNDiagram",
@@ -608,14 +1146,40 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
     plane = ET.SubElement(
         diagram,
         "bpmndi:BPMNPlane",
-        attrib={"id": "BPMNPlane_WaterTrafficEmergency", "bpmnElement": process_id},
+        attrib={"id": "BPMNPlane_WaterTrafficEmergency", "bpmnElement": collaboration_id},
     )
+
+    for participant_id, bounds in participant_positions.items():
+        shape = ET.SubElement(
+            plane,
+            "bpmndi:BPMNShape",
+            attrib={
+                "id": f"{participant_id}_di",
+                "bpmnElement": participant_id,
+                "isHorizontal": "true",
+            },
+        )
+        ET.SubElement(
+            shape,
+            "dc:Bounds",
+            attrib={
+                "x": f"{bounds[0]:.2f}",
+                "y": f"{bounds[1]:.2f}",
+                "width": f"{bounds[2]:.2f}",
+                "height": f"{bounds[3]:.2f}",
+            },
+        )
+
     for lane in lanes:
-        lane_bounds = lane_positions[lane["id"]]
+        lane_bounds = lane_positions[lane.lane_id]
         lane_shape = ET.SubElement(
             plane,
             "bpmndi:BPMNShape",
-            attrib={"id": f"{lane['id']}_di", "bpmnElement": lane["id"]},
+            attrib={
+                "id": f"{lane.lane_id}_di",
+                "bpmnElement": lane.lane_id,
+                "isHorizontal": "true",
+            },
         )
         ET.SubElement(
             lane_shape,
@@ -644,41 +1208,57 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "height": f"{height:.2f}",
             },
         )
-    def element_right(bounds: Tuple[float, float, float, float]) -> Tuple[float, float]:
-        x, y, width, height = bounds
-        return (x + width, y + height / 2.0)
 
-    def element_left(bounds: Tuple[float, float, float, float]) -> Tuple[float, float]:
-        x, y, _, height = bounds
-        return (x, y + height / 2.0)
-    for flow_id, source_id, target_id in sequence_flows:
+    for flow in sequence_flows + external_sequence_flows:
         edge = ET.SubElement(
             plane,
             "bpmndi:BPMNEdge",
-            attrib={"id": f"{flow_id}_di", "bpmnElement": flow_id},
+            attrib={"id": f"{flow['id']}_di", "bpmnElement": flow["id"]},
         )
-        source_bounds = positions[source_id]
-        target_bounds = positions[target_id]
-        if source_id == start_id:
-            start_point = element_right(source_bounds)
-        else:
-            start_point = element_right(source_bounds)
-        if target_id == end_id:
-            end_point = element_left(target_bounds)
-        else:
-            end_point = element_left(target_bounds)
-        for point in (start_point, end_point):
+        for point in connection_points(positions[flow["source"]], positions[flow["target"]]):
             ET.SubElement(
                 edge,
                 "di:waypoint",
                 attrib={"x": f"{point[0]:.2f}", "y": f"{point[1]:.2f}"},
             )
+
+    for message in message_flows:
+        edge = ET.SubElement(
+            plane,
+            "bpmndi:BPMNEdge",
+            attrib={"id": f"{message['id']}_di", "bpmnElement": message["id"]},
+        )
+        for point in connection_points(positions[message["source"]], positions[message["target"]]):
+            ET.SubElement(
+                edge,
+                "di:waypoint",
+                attrib={"x": f"{point[0]:.2f}", "y": f"{point[1]:.2f}"},
+            )
+
+    for assoc_type, assoc_id, source_id, target_id in data_association_edges:
+        edge = ET.SubElement(
+            plane,
+            "bpmndi:BPMNEdge",
+            attrib={"id": f"{assoc_id}_di", "bpmnElement": assoc_id},
+        )
+        if assoc_type == "input":
+            start_bounds = positions[source_id]
+            end_bounds = positions[target_id]
+        else:
+            start_bounds = positions[source_id]
+            end_bounds = positions[target_id]
+        for point in connection_points(start_bounds, end_bounds):
+            ET.SubElement(
+                edge,
+                "di:waypoint",
+                attrib={"x": f"{point[0]:.2f}", "y": f"{point[1]:.2f}"},
+            )
+
     tree = ET.ElementTree(definitions)
     ET.indent(tree, space="  ", level=0)
     tree.write(output_path, encoding="utf-8", xml_declaration=True)
     with output_path.open("a", encoding="utf-8") as handle:
         handle.write("\n")
-
 
 def build_and_export(
     hta_path: Path,
