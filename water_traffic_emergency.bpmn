@@ -3,51 +3,77 @@
   <bpmn:collaboration id="Collaboration_WaterTrafficEmergency">
     <bpmn:participant id="Participant_Project" name="项目部应急组织" processRef="Process_WaterTrafficEmergency" />
     <bpmn:participant id="Participant_External" name="政府及外部支援机构" processRef="Process_ExternalSupport" />
-    <bpmn:messageFlow id="MessageFlow_GovernmentReport" name="事故报告" sourceRef="Task_ReportAuthorities" targetRef="Task_ReceiveReport" />
+    <bpmn:messageFlow id="MessageFlow_GovernmentReport" name="事故报告" sourceRef="Task_EscalateAuthorities" targetRef="Task_ReceiveReport" />
     <bpmn:messageFlow id="MessageFlow_SupportRequest" name="支援请求" sourceRef="Task_RequestExternalSupport" targetRef="Task_ProvideGuidance" />
-    <bpmn:messageFlow id="MessageFlow_StatusUpdate" name="现场动态" sourceRef="Task_Communications" targetRef="Task_ProvideGuidance" />
+    <bpmn:messageFlow id="MessageFlow_StatusUpdate" name="现场动态" sourceRef="Task_ExternalLiaison" targetRef="Task_ProvideGuidance" />
   </bpmn:collaboration>
   <bpmn:process id="Process_WaterTrafficEmergency" name="水上交通事故应急流程" isExecutable="false">
     <bpmn:laneSet id="LaneSet_Project">
-      <bpmn:lane id="Lane_1" name="现场处置小组">
-        <bpmn:flowNodeRef>StartEvent_IncidentDetected</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ReportIncident</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ConfirmDetails</bpmn:flowNodeRef>
+      <bpmn:lane id="Lane_1" name="技术支持组">
+        <bpmn:flowNodeRef>StartEvent_RoutineMonitoring</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PreventiveWatch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RiskPatrol</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_PreventiveSplit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InspectEquipment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MonitorEnvironment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_PreventiveJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Investigation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CollectEvidence</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_2" name="信息联络组">
+        <bpmn:flowNodeRef>Task_PublishAlert</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SummariseSituation</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_VerifyWithUnits</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ReportAuthorities</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EscalateAuthorities</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_Communications</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExternalLiaison</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_3" name="项目部应急领导小组">
+      <bpmn:lane id="Lane_3" name="综合协调组">
+        <bpmn:flowNodeRef>Task_NotifyTeams</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Coordination</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Evacuation</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_4" name="现场处置小组">
+        <bpmn:flowNodeRef>IntermediateEvent_Incident</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReportProcess</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReportIncident</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ConfirmDetails</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_5" name="项目部应急领导小组">
+        <bpmn:flowNodeRef>Task_InitiateResponse</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_AssessResponseLevel</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_ResponseLevel</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_InternalResponse</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_RequestExternalSupport</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_ResponseMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DefineTeamMissions</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RecoveryTransition</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RecoverySplit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RecoveryMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EvaluateResponse</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_FinalReport</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_ResponseComplete</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_4" name="项目部领导">
+      <bpmn:lane id="Lane_6" name="项目部领导">
         <bpmn:flowNodeRef>Task_IssueOrders</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OnsiteOperations</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_ParallelSplit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_ParallelJoin</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_5" name="医疗救护组">
-        <bpmn:flowNodeRef>Task_MedicalAid</bpmn:flowNodeRef>
-      </bpmn:lane>
-      <bpmn:lane id="Lane_6" name="工程抢险组">
+      <bpmn:lane id="Lane_7" name="工程抢险组">
+        <bpmn:flowNodeRef>Task_EngineeringDeploy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BlockArea</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_EngineeringControl</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_7" name="综合协调组">
-        <bpmn:flowNodeRef>Task_Evacuation</bpmn:flowNodeRef>
+      <bpmn:lane id="Lane_8" name="医疗救护组">
+        <bpmn:flowNodeRef>Task_MedicalPlan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MedicalAid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MedicalTransfer</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_8" name="善后处置组">
+      <bpmn:lane id="Lane_9" name="善后处置组">
+        <bpmn:flowNodeRef>Task_Aftercare</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_PsychologicalSupport</bpmn:flowNodeRef>
-      </bpmn:lane>
-      <bpmn:lane id="Lane_9" name="技术支持组">
-        <bpmn:flowNodeRef>Task_CollectEvidence</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:dataObject id="Data_IncidentReport" name="险情快报" />
@@ -62,12 +88,97 @@
     <bpmn:dataObjectReference id="DataRef_StatusUpdates" dataObjectRef="Data_StatusUpdates" name="现场联络日志" />
     <bpmn:dataObject id="Data_FinalReport" name="事故总结报告" />
     <bpmn:dataObjectReference id="DataRef_FinalReport" dataObjectRef="Data_FinalReport" name="事故总结报告" />
-    <bpmn:startEvent id="StartEvent_IncidentDetected" name="事故发现">
-      <bpmn:outgoing>Flow_Start_Report</bpmn:outgoing>
-      <bpmn:documentation>现场处置小组发现或接到事故警情，准备启动报告流程。</bpmn:documentation>
+    <bpmn:startEvent id="StartEvent_RoutineMonitoring" name="常态监测">
+      <bpmn:outgoing>Flow_Start_Preventive</bpmn:outgoing>
+      <bpmn:documentation>技术支持组开展航道施工常态巡查与风险监测的起点。</bpmn:documentation>
     </bpmn:startEvent>
+    <bpmn:task id="Task_PreventiveWatch" name="监测施工水域风险并预警">
+      <bpmn:incoming>Flow_Start_Preventive</bpmn:incoming>
+      <bpmn:outgoing>Flow_Preventive_RiskPatrol</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：综合协调组联合技术支持组围绕船员、船舶与环境因素评估碰撞、火灾、风浪、自沉等风险，提前调整施工计划并准备应对措施。
+预案摘录：预案2.2.2指出水上作业可能因船员因素、船舶因素和环境因素引发碰撞、火灾、风灾、自沉、搁浅等事故，需要提前识别风险并采取预警措施。
+责任主体：综合协调组、技术支持组
+所需资源：监测信息、预警系统
+任务路径：总体应急目标 → 监测施工水域风险并预警</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Task_RiskPatrol" name="巡查施工与航道风险点">
+      <bpmn:incoming>Flow_Preventive_RiskPatrol</bpmn:incoming>
+      <bpmn:outgoing>Flow_RiskPatrol_Split</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：技术支持组对施工海域的船舶运行、作业干扰和周边航行环境实施巡查，跟踪可能诱发水上交通事故的风险点。
+预案摘录：预案2.2.2(1)-(7)列举了船舶碰撞、火灾爆炸、风浪损伤、自沉、搁浅及人员落水等风险情形，要求持续监测施工与航道状况。
+责任主体：技术支持组
+所需资源：风险评估工具
+任务路径：总体应急目标 → 监测施工水域风险并预警 → 巡查施工与航道风险点</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_PreventiveSplit" name="风险监测分工">
+      <bpmn:incoming>Flow_RiskPatrol_Split</bpmn:incoming>
+      <bpmn:outgoing>Flow_Split_Inspect</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Split_Environment</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Task_InspectEquipment" name="检查船舶与设备状态">
+      <bpmn:incoming>Flow_Split_Inspect</bpmn:incoming>
+      <bpmn:outgoing>Flow_Inspect_Join</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：落实船舶机舱、泵舱、消防、通信等设备的例行检查，发现设备异常及时调整，避免因设备缺陷诱发事故。
+预案摘录：预案2.2.2强调船舶因素可能引发火灾、爆炸、自沉等险情，需要通过日常巡查掌握设备运行状态。
+责任主体：技术支持组
+所需资源：检查表、监测仪器
+任务路径：总体应急目标 → 监测施工水域风险并预警 → 巡查施工与航道风险点 → 检查船舶与设备状态</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Task_MonitorEnvironment" name="掌握气象与水文条件">
+      <bpmn:incoming>Flow_Split_Environment</bpmn:incoming>
+      <bpmn:outgoing>Flow_Environment_Join</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：跟踪风力、突风、潮差和能见度等环境条件，及时采取避险或调整航行安排，降低风灾和浪损风险。
+预案摘录：预案2.2.2(4)提示海上施工易受大风、突风影响发生风灾、浪损事故，需要加强环境监测。
+责任主体：技术支持组
+所需资源：气象信息系统
+任务路径：总体应急目标 → 监测施工水域风险并预警 → 巡查施工与航道风险点 → 掌握气象与水文条件</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_PreventiveJoin" name="监测信息汇总">
+      <bpmn:incoming>Flow_Inspect_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_Environment_Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_PreventiveJoin_Publish</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Task_PublishAlert" name="发布预警等级与调整施工">
+      <bpmn:incoming>Flow_PreventiveJoin_Publish</bpmn:incoming>
+      <bpmn:outgoing>Flow_Publish_Notify</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：项目部应急办公室依据风险巡查结果划分蓝、黄、橙、红预警等级，通知相关单位调整作业强度并做好防范部署。
+预案摘录：预案要求根据监测到的碰撞、火灾、自沉等风险提前发布预警信息，引导施工单位采取防范措施。
+责任主体：项目部应急办公室
+所需资源：预警信息通告
+任务路径：总体应急目标 → 监测施工水域风险并预警 → 发布预警等级与调整施工</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Task_NotifyTeams" name="通知各小组执行预警措施">
+      <bpmn:incoming>Flow_Publish_Notify</bpmn:incoming>
+      <bpmn:outgoing>Flow_Notify_Incident</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：综合协调组向各应急小组通报预警等级，明确值守、避风、减载、调整航次等协同动作。
+预案摘录：预案2.2.2和2.2.5要求各小组分工明确、责任到人，接到预警后及时落实防控措施。
+责任主体：综合协调组
+所需资源：预警通知单
+任务路径：总体应急目标 → 监测施工水域风险并预警 → 发布预警等级与调整施工 → 通知各小组执行预警措施</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:intermediateCatchEvent id="IntermediateEvent_Incident" name="事故发生">
+      <bpmn:incoming>Flow_Notify_Incident</bpmn:incoming>
+      <bpmn:outgoing>Flow_Incident_ReportProcess</bpmn:outgoing>
+      <bpmn:documentation>施工现场突发水上交通事故，触发应急程序。</bpmn:documentation>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_ReportProcess" name="事故信息上报启动流程">
+      <bpmn:incoming>Flow_Incident_ReportProcess</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReportProcess_ReportIncident</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：信息联络组依照专项预案接收现场险情并向项目部、公司和政府主管部门逐级报告，为启动响应做准备。
+预案摘录：预案2.2.4规定现场处置小组先期处置同时上报项目部，应急领导小组据此评估险情并决定响应等级。
+责任主体：信息联络组、现场处置小组
+所需资源：通讯工具、报告模板
+任务路径：总体应急目标 → 事故信息上报启动流程</bpmn:documentation>
+    </bpmn:task>
     <bpmn:task id="Task_ReportIncident" name="现场人员立即报告险情">
-      <bpmn:incoming>Flow_Start_Report</bpmn:incoming>
+      <bpmn:incoming>Flow_ReportProcess_ReportIncident</bpmn:incoming>
       <bpmn:outgoing>Flow_Report_Confirm</bpmn:outgoing>
       <bpmn:documentation>层级：2
 任务描述：现场处置小组成员发现事故后第一时间通过通讯设备向项目部报告，说明地点、时间、伤亡及设备受损情况。
@@ -118,7 +229,7 @@
     </bpmn:task>
     <bpmn:task id="Task_VerifyWithUnits" name="与相关单位核实情况">
       <bpmn:incoming>Flow_Summarise_Verify</bpmn:incoming>
-      <bpmn:outgoing>Flow_Verify_ReportAuthorities</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Verify_Report</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：与监理、建设单位及现场指挥保持通信，核对事故事实和资源需求，确保对外报告准确一致。
 预案摘录：预案2.2.4(2)要求应急组织人员赶赴现场并分工协作，保持通信联络掌握真实情况。
@@ -127,8 +238,8 @@
 任务路径：总体应急目标 → 事故信息上报启动流程 → 项目部汇总并评估险情 → 与相关单位核实情况</bpmn:documentation>
     </bpmn:task>
     <bpmn:task id="Task_ReportAuthorities" name="向主管部门同步报告">
-      <bpmn:incoming>Flow_Verify_ReportAuthorities</bpmn:incoming>
-      <bpmn:outgoing>Flow_Report_Assess</bpmn:outgoing>
+      <bpmn:incoming>Flow_Verify_Report</bpmn:incoming>
+      <bpmn:outgoing>Flow_Report_Escalate</bpmn:outgoing>
       <bpmn:documentation>层级：2
 任务描述：信息联络组在项目部汇总后，按规定向交通、应急、海事等主管部门通报事故并请求指导支援。
 预案摘录：预案2.2.5.1(2)强调接报后立即向项目部、公司调度室以及就近海事局或海上搜救中心报告。
@@ -136,8 +247,28 @@
 所需资源：联系方式清单
 任务路径：总体应急目标 → 事故信息上报启动流程 → 向主管部门同步报告</bpmn:documentation>
     </bpmn:task>
+    <bpmn:task id="Task_EscalateAuthorities" name="按要求逐级通报">
+      <bpmn:incoming>Flow_Report_Escalate</bpmn:incoming>
+      <bpmn:outgoing>Flow_Escalate_Initiate</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：依照政府应急体系逐级汇报事故性质、发展态势与所需支援，保持与外部主管部门的同步沟通。
+预案摘录：预案2.2.5.1(2)提出需向项目部、公司及海事部门报告，必要时联系海上搜救中心协助处置。
+责任主体：信息联络组
+所需资源：联系方式清单
+任务路径：总体应急目标 → 事故信息上报启动流程 → 向主管部门同步报告 → 按要求逐级通报</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Task_InitiateResponse" name="启动项目应急响应程序">
+      <bpmn:incoming>Flow_Escalate_Initiate</bpmn:incoming>
+      <bpmn:outgoing>Flow_Initiate_Assess</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：项目部应急领导小组根据险情研判启动应急预案，组织各小组到位执行处置任务。
+预案摘录：预案2.2.4说明项目部应急救援领导小组接到报告后立即评估险情并决定响应等级、启动预案。
+责任主体：项目部应急领导小组
+所需资源：应急车辆、通信装备
+任务路径：总体应急目标 → 启动项目应急响应程序</bpmn:documentation>
+    </bpmn:task>
     <bpmn:task id="Task_AssessResponseLevel" name="研判并确定响应等级">
-      <bpmn:incoming>Flow_Report_Assess</bpmn:incoming>
+      <bpmn:incoming>Flow_Initiate_Assess</bpmn:incoming>
       <bpmn:outgoing>Flow_Assess_Gateway</bpmn:outgoing>
       <bpmn:documentation>层级：2
 任务描述：综合事故规模与影响范围，判定启动项目内部Ⅱ级响应或升级为需要社会力量参与的Ⅰ级响应。
@@ -148,12 +279,12 @@
     </bpmn:task>
     <bpmn:exclusiveGateway id="Gateway_ResponseLevel" name="响应等级判定">
       <bpmn:incoming>Flow_Assess_Gateway</bpmn:incoming>
-      <bpmn:outgoing>Flow_Gateway_Internal</bpmn:outgoing>
-      <bpmn:outgoing>Flow_Gateway_External</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Response_Internal</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Response_External</bpmn:outgoing>
       <bpmn:documentation>根据核实后的险情，判断是否需要升级为社会救援级别。</bpmn:documentation>
     </bpmn:exclusiveGateway>
     <bpmn:task id="Task_InternalResponse" name="组织项目内部自救处置">
-      <bpmn:incoming>Flow_Gateway_Internal</bpmn:incoming>
+      <bpmn:incoming>Flow_Response_Internal</bpmn:incoming>
       <bpmn:outgoing>Flow_Internal_Merge</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：当事故可在项目范围内控制时，调集项目资源开展自救抢险、医疗救护与现场警戒。
@@ -163,7 +294,7 @@
 任务路径：总体应急目标 → 启动项目应急响应程序 → 研判并确定响应等级 → 组织项目内部自救处置</bpmn:documentation>
     </bpmn:task>
     <bpmn:task id="Task_RequestExternalSupport" name="协调外部救援力量介入">
-      <bpmn:incoming>Flow_Gateway_External</bpmn:incoming>
+      <bpmn:incoming>Flow_Response_External</bpmn:incoming>
       <bpmn:outgoing>Flow_External_Merge</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：当险情超出项目能力时，请求政府、海事或搜救中心等外部专业力量增援，确保人命与船舶安全。
@@ -175,11 +306,21 @@
     <bpmn:exclusiveGateway id="Gateway_ResponseMerge" name="响应路径汇合">
       <bpmn:incoming>Flow_Internal_Merge</bpmn:incoming>
       <bpmn:incoming>Flow_External_Merge</bpmn:incoming>
-      <bpmn:outgoing>Flow_Merge_IssueOrders</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Merge_Define</bpmn:outgoing>
     </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_DefineTeamMissions" name="明确各应急小组任务">
+      <bpmn:incoming>Flow_Merge_Define</bpmn:incoming>
+      <bpmn:outgoing>Flow_Define_Issue</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：根据预案将医疗救护、工程抢险、综合协调、信息联络等小组的职责迅速细化到岗位，形成作战部署。
+预案摘录：预案2.2.4(2)要求应急组织人员赶赴现场并同时安排救治、报警、封闭现场等多项任务。
+责任主体：工程抢险组、医疗救护组
+所需资源：救援任务单
+任务路径：总体应急目标 → 启动项目应急响应程序 → 明确各应急小组任务</bpmn:documentation>
+    </bpmn:task>
     <bpmn:task id="Task_IssueOrders" name="向各小组下达现场处置指令">
-      <bpmn:incoming>Flow_Merge_IssueOrders</bpmn:incoming>
-      <bpmn:outgoing>Flow_IssueOrders_Split</bpmn:outgoing>
+      <bpmn:incoming>Flow_Define_Issue</bpmn:incoming>
+      <bpmn:outgoing>Flow_Issue_Onsite</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：项目部领导根据现场研判向各小组发布抢险、救护、封控等指令，确保行动同步推进。
 预案摘录：预案2.2.4(2)描述接报后需要同时安排救治、报警、封闭现场等任务，体现指挥统一调度。
@@ -197,16 +338,46 @@
         <bpmn:targetRef>DataRef_ResponseOrders</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:task>
+    <bpmn:task id="Task_OnsiteOperations" name="组织现场抢险救援行动">
+      <bpmn:incoming>Flow_Issue_Onsite</bpmn:incoming>
+      <bpmn:outgoing>Flow_Onsite_Split</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：按照专项预案开展医疗救护、封闭事故区、调动设备等行动，控制险情发展。
+预案摘录：预案2.2.4(2)-(3)明确现场需同步组织救治、求援、封闭现场和调动设备抢救，尽量降低损失。
+责任主体：工程抢险组、医疗救护组、综合协调组
+所需资源：抢险设备、医疗物资、交通管制设施
+任务路径：总体应急目标 → 组织现场抢险救援行动</bpmn:documentation>
+    </bpmn:task>
     <bpmn:parallelGateway id="Gateway_ParallelSplit" name="指令同步各小组">
-      <bpmn:incoming>Flow_IssueOrders_Split</bpmn:incoming>
-      <bpmn:outgoing>Flow_Split_Medical</bpmn:outgoing>
-      <bpmn:outgoing>Flow_Split_Engineering</bpmn:outgoing>
-      <bpmn:outgoing>Flow_Split_Evacuation</bpmn:outgoing>
+      <bpmn:incoming>Flow_Onsite_Split</bpmn:incoming>
+      <bpmn:outgoing>Flow_Split_MedicalPlan</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Split_EngineeringDeploy</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Split_Coordination</bpmn:outgoing>
       <bpmn:outgoing>Flow_Split_Communications</bpmn:outgoing>
     </bpmn:parallelGateway>
+    <bpmn:task id="Task_MedicalPlan" name="安排受伤人员救治流程">
+      <bpmn:incoming>Flow_Split_MedicalPlan</bpmn:incoming>
+      <bpmn:outgoing>Flow_MedicalPlan_Aid</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：根据伤情制定紧急救治方案，联系120并准备接应医护人员，保障伤员及时救治。
+预案摘录：预案2.2.4(2)①-②要求根据受伤程度采取紧急救治、向120求救并派人引导救护车到场。
+责任主体：医疗救护组
+所需资源：急救药品、担架、救护车
+任务路径：总体应急目标 → 组织现场抢险救援行动 → 安排受伤人员救治流程</bpmn:documentation>
+      <bpmn:ioSpecification>
+        <bpmn:dataInput id="Task_MedicalPlan_Input_1" />
+        <bpmn:inputSet>
+          <bpmn:dataInputRefs>Task_MedicalPlan_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="DataAssoc_MedicalPlan_Input">
+        <bpmn:sourceRef>DataRef_ResponseOrders</bpmn:sourceRef>
+        <bpmn:targetRef>Task_MedicalPlan_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
     <bpmn:task id="Task_MedicalAid" name="实施现场紧急救护">
-      <bpmn:incoming>Flow_Split_Medical</bpmn:incoming>
-      <bpmn:outgoing>Flow_Medical_Join</bpmn:outgoing>
+      <bpmn:incoming>Flow_MedicalPlan_Aid</bpmn:incoming>
+      <bpmn:outgoing>Flow_MedicalAid_Transfer</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：医护与现场救援人员在专业救援抵达前持续开展包扎、止血、心肺复苏等急救，保障伤员生命体征稳定。
 预案摘录：预案2.2.4(2)②指出医务人员未接替救治前现场人员应及时组织抢救。
@@ -214,26 +385,58 @@
 所需资源：急救药品、担架
 任务路径：总体应急目标 → 组织现场抢险救援行动 → 安排受伤人员救治流程 → 实施现场紧急救护</bpmn:documentation>
       <bpmn:ioSpecification>
-        <bpmn:dataInput id="Task_MedicalAid_Input_1" />
         <bpmn:dataOutput id="Task_MedicalAid_Output_1" />
-        <bpmn:inputSet>
-          <bpmn:dataInputRefs>Task_MedicalAid_Input_1</bpmn:dataInputRefs>
-        </bpmn:inputSet>
         <bpmn:outputSet>
           <bpmn:dataOutputRefs>Task_MedicalAid_Output_1</bpmn:dataOutputRefs>
         </bpmn:outputSet>
       </bpmn:ioSpecification>
-      <bpmn:dataInputAssociation id="DataAssoc_Medical_Input">
-        <bpmn:sourceRef>DataRef_ResponseOrders</bpmn:sourceRef>
-        <bpmn:targetRef>Task_MedicalAid_Input_1</bpmn:targetRef>
-      </bpmn:dataInputAssociation>
-      <bpmn:dataOutputAssociation id="DataAssoc_Medical_Output">
+      <bpmn:dataOutputAssociation id="DataAssoc_MedicalAid_Output">
         <bpmn:sourceRef>Task_MedicalAid_Output_1</bpmn:sourceRef>
         <bpmn:targetRef>DataRef_MedicalRecord</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:task>
+    <bpmn:task id="Task_MedicalTransfer" name="联系120并护送转运">
+      <bpmn:incoming>Flow_MedicalAid_Transfer</bpmn:incoming>
+      <bpmn:outgoing>Flow_Medical_Join</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：拨打120抢救中心并派员在交通节点引导救护车，协助医务人员将伤员安全转运医院。
+预案摘录：预案2.2.4(2)②要求向120求救并派人在交叉路口指引救护车尽快到达。
+责任主体：医疗救护组
+所需资源：救护车、转运路线
+任务路径：总体应急目标 → 组织现场抢险救援行动 → 安排受伤人员救治流程 → 联系120并护送转运</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Task_EngineeringDeploy" name="调配装备进行工程抢险">
+      <bpmn:incoming>Flow_Split_EngineeringDeploy</bpmn:incoming>
+      <bpmn:outgoing>Flow_Engineering_Block</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：组织抢险力量抢救事故设备和受困人员，采取排水、堵漏、加固等措施遏制险情扩散。
+预案摘录：预案2.2.4(3)强调组织人员调动设备抢救事故设备和人员；预案2.2.5.1(6)-(7)要求采取排水、堵漏等应对措施。
+责任主体：工程抢险组
+所需资源：排水泵、堵漏工具、吊装设备
+任务路径：总体应急目标 → 组织现场抢险救援行动 → 调配装备进行工程抢险</bpmn:documentation>
+      <bpmn:ioSpecification>
+        <bpmn:dataInput id="Task_EngineeringDeploy_Input_1" />
+        <bpmn:inputSet>
+          <bpmn:dataInputRefs>Task_EngineeringDeploy_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="DataAssoc_EngineeringPlan_Input">
+        <bpmn:sourceRef>DataRef_ResponseOrders</bpmn:sourceRef>
+        <bpmn:targetRef>Task_EngineeringDeploy_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:task id="Task_BlockArea" name="封锁现场设置警戒">
+      <bpmn:incoming>Flow_Engineering_Block</bpmn:incoming>
+      <bpmn:outgoing>Flow_Block_Control</bpmn:outgoing>
+      <bpmn:documentation>层级：3
+任务描述：在事故周边设置警戒带和警示标志，阻止无关人员进入，维护救援秩序。
+预案摘录：预案2.2.4(2)③要求封闭事故现场并设置警示标志，禁止无关人员进入。
+责任主体：工程抢险组
+所需资源：警示标志、围栏
+任务路径：总体应急目标 → 组织现场抢险救援行动 → 调配装备进行工程抢险 → 封锁现场设置警戒</bpmn:documentation>
+    </bpmn:task>
     <bpmn:task id="Task_EngineeringControl" name="排水堵漏稳定结构">
-      <bpmn:incoming>Flow_Split_Engineering</bpmn:incoming>
+      <bpmn:incoming>Flow_Block_Control</bpmn:incoming>
       <bpmn:outgoing>Flow_Engineering_Join</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：根据破损情况实施排水、堵漏、加固及必要时抢滩坐浅等措施，稳定船体和施工设备。
@@ -242,26 +445,38 @@
 所需资源：抢险设备
 任务路径：总体应急目标 → 组织现场抢险救援行动 → 调配装备进行工程抢险 → 排水堵漏稳定结构</bpmn:documentation>
       <bpmn:ioSpecification>
-        <bpmn:dataInput id="Task_EngineeringControl_Input_1" />
         <bpmn:dataOutput id="Task_EngineeringControl_Output_1" />
-        <bpmn:inputSet>
-          <bpmn:dataInputRefs>Task_EngineeringControl_Input_1</bpmn:dataInputRefs>
-        </bpmn:inputSet>
         <bpmn:outputSet>
           <bpmn:dataOutputRefs>Task_EngineeringControl_Output_1</bpmn:dataOutputRefs>
         </bpmn:outputSet>
       </bpmn:ioSpecification>
-      <bpmn:dataInputAssociation id="DataAssoc_Engineering_Input">
-        <bpmn:sourceRef>DataRef_ResponseOrders</bpmn:sourceRef>
-        <bpmn:targetRef>Task_EngineeringControl_Input_1</bpmn:targetRef>
-      </bpmn:dataInputAssociation>
       <bpmn:dataOutputAssociation id="DataAssoc_Engineering_Output">
         <bpmn:sourceRef>Task_EngineeringControl_Output_1</bpmn:sourceRef>
         <bpmn:targetRef>DataRef_EngineeringLog</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:task>
+    <bpmn:task id="Task_Coordination" name="协调交通疏导与现场秩序">
+      <bpmn:incoming>Flow_Split_Coordination</bpmn:incoming>
+      <bpmn:outgoing>Flow_Coordination_Evacuation</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：综合协调组配合公安、交通等力量实施交通管制、人员疏散和现场保护，防止次生事故。
+预案摘录：预案2.2.4(2)③提示要封闭现场、设置警示并禁止无关人员进入，确保现场秩序。
+责任主体：综合协调组
+所需资源：警示标志、交通管制设施
+任务路径：总体应急目标 → 组织现场抢险救援行动 → 协调交通疏导与现场秩序</bpmn:documentation>
+      <bpmn:ioSpecification>
+        <bpmn:dataInput id="Task_Coordination_Input_1" />
+        <bpmn:inputSet>
+          <bpmn:dataInputRefs>Task_Coordination_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="DataAssoc_Coordination_Input">
+        <bpmn:sourceRef>DataRef_ResponseOrders</bpmn:sourceRef>
+        <bpmn:targetRef>Task_Coordination_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
     <bpmn:task id="Task_Evacuation" name="组织撤离非作业人员">
-      <bpmn:incoming>Flow_Split_Evacuation</bpmn:incoming>
+      <bpmn:incoming>Flow_Coordination_Evacuation</bpmn:incoming>
       <bpmn:outgoing>Flow_Evacuation_Join</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：指挥无关人员撤离事故区，安排安全集合点，保障救援通道畅通。
@@ -269,20 +484,30 @@
 责任主体：综合协调组
 所需资源：交通管制设施
 任务路径：总体应急目标 → 组织现场抢险救援行动 → 协调交通疏导与现场秩序 → 组织撤离非作业人员</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:task id="Task_Communications" name="保持内外通信与信息传递">
+      <bpmn:incoming>Flow_Split_Communications</bpmn:incoming>
+      <bpmn:outgoing>Flow_Communications_Liaison</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：信息联络组同步向现场指挥、项目部和外部单位传递险情变化，确保指挥协调顺畅。
+预案摘录：预案2.2.4(2)②和2.2.5.2(13)要求保持与内外部的通信联络，及时通报情况。
+责任主体：信息联络组
+所需资源：通信装备
+任务路径：总体应急目标 → 组织现场抢险救援行动 → 保持内外通信与信息传递</bpmn:documentation>
       <bpmn:ioSpecification>
-        <bpmn:dataInput id="Task_Evacuation_Input_1" />
+        <bpmn:dataInput id="Task_Communications_Input_1" />
         <bpmn:inputSet>
-          <bpmn:dataInputRefs>Task_Evacuation_Input_1</bpmn:dataInputRefs>
+          <bpmn:dataInputRefs>Task_Communications_Input_1</bpmn:dataInputRefs>
         </bpmn:inputSet>
       </bpmn:ioSpecification>
-      <bpmn:dataInputAssociation id="DataAssoc_Evacuation_Input">
+      <bpmn:dataInputAssociation id="DataAssoc_Communications_Input">
         <bpmn:sourceRef>DataRef_ResponseOrders</bpmn:sourceRef>
-        <bpmn:targetRef>Task_Evacuation_Input_1</bpmn:targetRef>
+        <bpmn:targetRef>Task_Communications_Input_1</bpmn:targetRef>
       </bpmn:dataInputAssociation>
     </bpmn:task>
-    <bpmn:task id="Task_Communications" name="对接医院海事等外部单位">
-      <bpmn:incoming>Flow_Split_Communications</bpmn:incoming>
-      <bpmn:outgoing>Flow_Communications_Join</bpmn:outgoing>
+    <bpmn:task id="Task_ExternalLiaison" name="对接医院海事等外部单位">
+      <bpmn:incoming>Flow_Communications_Liaison</bpmn:incoming>
+      <bpmn:outgoing>Flow_Liaison_Join</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：持续联系120救援中心、海事局、搜救中心及相关政府部门，通报救援需求并协调支援力量。
 预案摘录：预案2.2.4(2)②、2.2.5.1(2)和2.2.5.2(4)要求向120、海事局等外部机构报告并保持联络。
@@ -290,21 +515,13 @@
 所需资源：通讯设备
 任务路径：总体应急目标 → 组织现场抢险救援行动 → 保持内外通信与信息传递 → 对接医院海事等外部单位</bpmn:documentation>
       <bpmn:ioSpecification>
-        <bpmn:dataInput id="Task_Communications_Input_1" />
-        <bpmn:dataOutput id="Task_Communications_Output_1" />
-        <bpmn:inputSet>
-          <bpmn:dataInputRefs>Task_Communications_Input_1</bpmn:dataInputRefs>
-        </bpmn:inputSet>
+        <bpmn:dataOutput id="Task_ExternalLiaison_Output_1" />
         <bpmn:outputSet>
-          <bpmn:dataOutputRefs>Task_Communications_Output_1</bpmn:dataOutputRefs>
+          <bpmn:dataOutputRefs>Task_ExternalLiaison_Output_1</bpmn:dataOutputRefs>
         </bpmn:outputSet>
       </bpmn:ioSpecification>
-      <bpmn:dataInputAssociation id="DataAssoc_Communications_Input">
-        <bpmn:sourceRef>DataRef_ResponseOrders</bpmn:sourceRef>
-        <bpmn:targetRef>Task_Communications_Input_1</bpmn:targetRef>
-      </bpmn:dataInputAssociation>
-      <bpmn:dataOutputAssociation id="DataAssoc_Communications_Output">
-        <bpmn:sourceRef>Task_Communications_Output_1</bpmn:sourceRef>
+      <bpmn:dataOutputAssociation id="DataAssoc_StatusUpdates_Output">
+        <bpmn:sourceRef>Task_ExternalLiaison_Output_1</bpmn:sourceRef>
         <bpmn:targetRef>DataRef_StatusUpdates</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:task>
@@ -312,12 +529,37 @@
       <bpmn:incoming>Flow_Medical_Join</bpmn:incoming>
       <bpmn:incoming>Flow_Engineering_Join</bpmn:incoming>
       <bpmn:incoming>Flow_Evacuation_Join</bpmn:incoming>
-      <bpmn:incoming>Flow_Communications_Join</bpmn:incoming>
-      <bpmn:outgoing>Flow_Join_PsychSupport</bpmn:outgoing>
+      <bpmn:incoming>Flow_Liaison_Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_Join_Recovery</bpmn:outgoing>
     </bpmn:parallelGateway>
+    <bpmn:task id="Task_RecoveryTransition" name="进入善后与恢复阶段">
+      <bpmn:incoming>Flow_Join_Recovery</bpmn:incoming>
+      <bpmn:outgoing>Flow_Recovery_Split</bpmn:outgoing>
+      <bpmn:documentation>层级：1
+任务描述：险情受控后转入善后、调查和总结工作，确保事故响应形成闭环管理。
+预案摘录：预案2.2.4(4)指出在伤员救护可靠、事故得到控制且资源到位后，应急救援行动结束并进入后续处置。
+责任主体：善后处置组、技术支持组
+所需资源：法律支持、补偿资金、评估报告
+任务路径：总体应急目标 → 进入善后与恢复阶段</bpmn:documentation>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_RecoverySplit" name="恢复任务分流">
+      <bpmn:incoming>Flow_Recovery_Split</bpmn:incoming>
+      <bpmn:outgoing>Flow_RecoverySplit_Aftercare</bpmn:outgoing>
+      <bpmn:outgoing>Flow_RecoverySplit_Investigation</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Task_Aftercare" name="落实安置补偿和后勤保障">
+      <bpmn:incoming>Flow_RecoverySplit_Aftercare</bpmn:incoming>
+      <bpmn:outgoing>Flow_Aftercare_Psych</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：组织受影响人员的安置、补偿及心理支持，恢复生产生活秩序并调配保障资源。
+预案摘录：预案2.2.4(4)提示在事故控制并资源落实后转入善后处置，确保人员得到妥善安置。
+责任主体：善后处置组
+所需资源：补偿资金、安置方案
+任务路径：总体应急目标 → 进入善后与恢复阶段 → 落实安置补偿和后勤保障</bpmn:documentation>
+    </bpmn:task>
     <bpmn:task id="Task_PsychologicalSupport" name="提供心理慰藉与家属沟通">
-      <bpmn:incoming>Flow_Join_PsychSupport</bpmn:incoming>
-      <bpmn:outgoing>Flow_PsychSupport_CollectEvidence</bpmn:outgoing>
+      <bpmn:incoming>Flow_Aftercare_Psych</bpmn:incoming>
+      <bpmn:outgoing>Flow_Psych_RecoveryMerge</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：善后处置组安排心理疏导和家属沟通，帮助伤亡人员及家属稳定情绪。
 预案摘录：预案2.2.4(4)强调救援结束后进入善后阶段，需要保障人员获得必要支持。
@@ -325,9 +567,19 @@
 所需资源：心理辅导人员
 任务路径：总体应急目标 → 进入善后与恢复阶段 → 落实安置补偿和后勤保障 → 提供心理慰藉与家属沟通</bpmn:documentation>
     </bpmn:task>
+    <bpmn:task id="Task_Investigation" name="组织事故调查与责任认定">
+      <bpmn:incoming>Flow_RecoverySplit_Investigation</bpmn:incoming>
+      <bpmn:outgoing>Flow_Investigation_Collect</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：联合技术支持组和相关机构查明事故原因、责任主体及改进措施，形成调查结论。
+预案摘录：预案2.2.5.1(3)-(4)、(9)-(11)要求查明破损情况、保存记录并向主管机关报告，为事故调查提供依据。
+责任主体：技术支持组、外部机构
+所需资源：调查报告、法律文件
+任务路径：总体应急目标 → 进入善后与恢复阶段 → 组织事故调查与责任认定</bpmn:documentation>
+    </bpmn:task>
     <bpmn:task id="Task_CollectEvidence" name="收集日志影像等调查资料">
-      <bpmn:incoming>Flow_PsychSupport_CollectEvidence</bpmn:incoming>
-      <bpmn:outgoing>Flow_CollectEvidence_FinalReport</bpmn:outgoing>
+      <bpmn:incoming>Flow_Investigation_Collect</bpmn:incoming>
+      <bpmn:outgoing>Flow_Collect_RecoveryMerge</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：系统整理航海日志、轮机日志、照片和监测记录，为事故调查和责任认定提供证据。
 预案摘录：预案2.2.5.1(9)-(10)强调保存被碰撞通知书、海图、损坏草图、照片及各类日志记录。
@@ -335,8 +587,23 @@
 所需资源：调查工具
 任务路径：总体应急目标 → 进入善后与恢复阶段 → 组织事故调查与责任认定 → 收集日志影像等调查资料</bpmn:documentation>
     </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_RecoveryMerge" name="恢复任务汇合">
+      <bpmn:incoming>Flow_Psych_RecoveryMerge</bpmn:incoming>
+      <bpmn:incoming>Flow_Collect_RecoveryMerge</bpmn:incoming>
+      <bpmn:outgoing>Flow_RecoveryMerge_Evaluate</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Task_EvaluateResponse" name="评估响应成效提出改进">
+      <bpmn:incoming>Flow_RecoveryMerge_Evaluate</bpmn:incoming>
+      <bpmn:outgoing>Flow_Evaluate_FinalReport</bpmn:outgoing>
+      <bpmn:documentation>层级：2
+任务描述：对应急行动的组织、协同与资源保障进行复盘，总结经验教训并提出改进措施。
+预案摘录：预案2.2.4(4)要求在行动结束后落实人员物资并开展后续处置，为总结评估提供条件。
+责任主体：项目部应急领导小组
+所需资源：评估报告
+任务路径：总体应急目标 → 进入善后与恢复阶段 → 评估响应成效提出改进</bpmn:documentation>
+    </bpmn:task>
     <bpmn:task id="Task_FinalReport" name="形成总结评估书面报告">
-      <bpmn:incoming>Flow_CollectEvidence_FinalReport</bpmn:incoming>
+      <bpmn:incoming>Flow_Evaluate_FinalReport</bpmn:incoming>
       <bpmn:outgoing>Flow_FinalReport_End</bpmn:outgoing>
       <bpmn:documentation>层级：3
 任务描述：项目部应急领导小组编写事故应急处置报告，记录过程、成效与改进建议，归档入库。
@@ -384,30 +651,58 @@
     <bpmn:endEvent id="EndEvent_ResponseComplete" name="响应结束">
       <bpmn:incoming>Flow_FinalReport_End</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_Start_Report" sourceRef="StartEvent_IncidentDetected" targetRef="Task_ReportIncident" />
+    <bpmn:sequenceFlow id="Flow_Start_Preventive" sourceRef="StartEvent_RoutineMonitoring" targetRef="Task_PreventiveWatch" />
+    <bpmn:sequenceFlow id="Flow_Preventive_RiskPatrol" sourceRef="Task_PreventiveWatch" targetRef="Task_RiskPatrol" />
+    <bpmn:sequenceFlow id="Flow_RiskPatrol_Split" sourceRef="Task_RiskPatrol" targetRef="Gateway_PreventiveSplit" />
+    <bpmn:sequenceFlow id="Flow_Split_Inspect" sourceRef="Gateway_PreventiveSplit" targetRef="Task_InspectEquipment" />
+    <bpmn:sequenceFlow id="Flow_Split_Environment" sourceRef="Gateway_PreventiveSplit" targetRef="Task_MonitorEnvironment" />
+    <bpmn:sequenceFlow id="Flow_Inspect_Join" sourceRef="Task_InspectEquipment" targetRef="Gateway_PreventiveJoin" />
+    <bpmn:sequenceFlow id="Flow_Environment_Join" sourceRef="Task_MonitorEnvironment" targetRef="Gateway_PreventiveJoin" />
+    <bpmn:sequenceFlow id="Flow_PreventiveJoin_Publish" sourceRef="Gateway_PreventiveJoin" targetRef="Task_PublishAlert" />
+    <bpmn:sequenceFlow id="Flow_Publish_Notify" sourceRef="Task_PublishAlert" targetRef="Task_NotifyTeams" />
+    <bpmn:sequenceFlow id="Flow_Notify_Incident" sourceRef="Task_NotifyTeams" targetRef="IntermediateEvent_Incident" />
+    <bpmn:sequenceFlow id="Flow_Incident_ReportProcess" sourceRef="IntermediateEvent_Incident" targetRef="Task_ReportProcess" />
+    <bpmn:sequenceFlow id="Flow_ReportProcess_ReportIncident" sourceRef="Task_ReportProcess" targetRef="Task_ReportIncident" />
     <bpmn:sequenceFlow id="Flow_Report_Confirm" sourceRef="Task_ReportIncident" targetRef="Task_ConfirmDetails" />
     <bpmn:sequenceFlow id="Flow_Confirm_Summarise" sourceRef="Task_ConfirmDetails" targetRef="Task_SummariseSituation" />
     <bpmn:sequenceFlow id="Flow_Summarise_Verify" sourceRef="Task_SummariseSituation" targetRef="Task_VerifyWithUnits" />
-    <bpmn:sequenceFlow id="Flow_Verify_ReportAuthorities" sourceRef="Task_VerifyWithUnits" targetRef="Task_ReportAuthorities" />
-    <bpmn:sequenceFlow id="Flow_Report_Assess" sourceRef="Task_ReportAuthorities" targetRef="Task_AssessResponseLevel" />
+    <bpmn:sequenceFlow id="Flow_Verify_Report" sourceRef="Task_VerifyWithUnits" targetRef="Task_ReportAuthorities" />
+    <bpmn:sequenceFlow id="Flow_Report_Escalate" sourceRef="Task_ReportAuthorities" targetRef="Task_EscalateAuthorities" />
+    <bpmn:sequenceFlow id="Flow_Escalate_Initiate" sourceRef="Task_EscalateAuthorities" targetRef="Task_InitiateResponse" />
+    <bpmn:sequenceFlow id="Flow_Initiate_Assess" sourceRef="Task_InitiateResponse" targetRef="Task_AssessResponseLevel" />
     <bpmn:sequenceFlow id="Flow_Assess_Gateway" sourceRef="Task_AssessResponseLevel" targetRef="Gateway_ResponseLevel" />
-    <bpmn:sequenceFlow id="Flow_Gateway_Internal" sourceRef="Gateway_ResponseLevel" targetRef="Task_InternalResponse" name="项目能力充足" />
-    <bpmn:sequenceFlow id="Flow_Gateway_External" sourceRef="Gateway_ResponseLevel" targetRef="Task_RequestExternalSupport" name="需外部支援" />
+    <bpmn:sequenceFlow id="Flow_Response_Internal" sourceRef="Gateway_ResponseLevel" targetRef="Task_InternalResponse" name="项目能力充足" />
+    <bpmn:sequenceFlow id="Flow_Response_External" sourceRef="Gateway_ResponseLevel" targetRef="Task_RequestExternalSupport" name="需外部支援" />
     <bpmn:sequenceFlow id="Flow_Internal_Merge" sourceRef="Task_InternalResponse" targetRef="Gateway_ResponseMerge" />
     <bpmn:sequenceFlow id="Flow_External_Merge" sourceRef="Task_RequestExternalSupport" targetRef="Gateway_ResponseMerge" />
-    <bpmn:sequenceFlow id="Flow_Merge_IssueOrders" sourceRef="Gateway_ResponseMerge" targetRef="Task_IssueOrders" />
-    <bpmn:sequenceFlow id="Flow_IssueOrders_Split" sourceRef="Task_IssueOrders" targetRef="Gateway_ParallelSplit" />
-    <bpmn:sequenceFlow id="Flow_Split_Medical" sourceRef="Gateway_ParallelSplit" targetRef="Task_MedicalAid" />
-    <bpmn:sequenceFlow id="Flow_Split_Engineering" sourceRef="Gateway_ParallelSplit" targetRef="Task_EngineeringControl" />
-    <bpmn:sequenceFlow id="Flow_Split_Evacuation" sourceRef="Gateway_ParallelSplit" targetRef="Task_Evacuation" />
-    <bpmn:sequenceFlow id="Flow_Split_Communications" sourceRef="Gateway_ParallelSplit" targetRef="Task_Communications" />
-    <bpmn:sequenceFlow id="Flow_Medical_Join" sourceRef="Task_MedicalAid" targetRef="Gateway_ParallelJoin" />
+    <bpmn:sequenceFlow id="Flow_Merge_Define" sourceRef="Gateway_ResponseMerge" targetRef="Task_DefineTeamMissions" />
+    <bpmn:sequenceFlow id="Flow_Define_Issue" sourceRef="Task_DefineTeamMissions" targetRef="Task_IssueOrders" />
+    <bpmn:sequenceFlow id="Flow_Issue_Onsite" sourceRef="Task_IssueOrders" targetRef="Task_OnsiteOperations" />
+    <bpmn:sequenceFlow id="Flow_Onsite_Split" sourceRef="Task_OnsiteOperations" targetRef="Gateway_ParallelSplit" />
+    <bpmn:sequenceFlow id="Flow_Split_MedicalPlan" sourceRef="Gateway_ParallelSplit" targetRef="Task_MedicalPlan" />
+    <bpmn:sequenceFlow id="Flow_MedicalPlan_Aid" sourceRef="Task_MedicalPlan" targetRef="Task_MedicalAid" />
+    <bpmn:sequenceFlow id="Flow_MedicalAid_Transfer" sourceRef="Task_MedicalAid" targetRef="Task_MedicalTransfer" />
+    <bpmn:sequenceFlow id="Flow_Medical_Join" sourceRef="Task_MedicalTransfer" targetRef="Gateway_ParallelJoin" />
+    <bpmn:sequenceFlow id="Flow_Split_EngineeringDeploy" sourceRef="Gateway_ParallelSplit" targetRef="Task_EngineeringDeploy" />
+    <bpmn:sequenceFlow id="Flow_Engineering_Block" sourceRef="Task_EngineeringDeploy" targetRef="Task_BlockArea" />
+    <bpmn:sequenceFlow id="Flow_Block_Control" sourceRef="Task_BlockArea" targetRef="Task_EngineeringControl" />
     <bpmn:sequenceFlow id="Flow_Engineering_Join" sourceRef="Task_EngineeringControl" targetRef="Gateway_ParallelJoin" />
+    <bpmn:sequenceFlow id="Flow_Split_Coordination" sourceRef="Gateway_ParallelSplit" targetRef="Task_Coordination" />
+    <bpmn:sequenceFlow id="Flow_Coordination_Evacuation" sourceRef="Task_Coordination" targetRef="Task_Evacuation" />
     <bpmn:sequenceFlow id="Flow_Evacuation_Join" sourceRef="Task_Evacuation" targetRef="Gateway_ParallelJoin" />
-    <bpmn:sequenceFlow id="Flow_Communications_Join" sourceRef="Task_Communications" targetRef="Gateway_ParallelJoin" />
-    <bpmn:sequenceFlow id="Flow_Join_PsychSupport" sourceRef="Gateway_ParallelJoin" targetRef="Task_PsychologicalSupport" />
-    <bpmn:sequenceFlow id="Flow_PsychSupport_CollectEvidence" sourceRef="Task_PsychologicalSupport" targetRef="Task_CollectEvidence" />
-    <bpmn:sequenceFlow id="Flow_CollectEvidence_FinalReport" sourceRef="Task_CollectEvidence" targetRef="Task_FinalReport" />
+    <bpmn:sequenceFlow id="Flow_Split_Communications" sourceRef="Gateway_ParallelSplit" targetRef="Task_Communications" />
+    <bpmn:sequenceFlow id="Flow_Communications_Liaison" sourceRef="Task_Communications" targetRef="Task_ExternalLiaison" />
+    <bpmn:sequenceFlow id="Flow_Liaison_Join" sourceRef="Task_ExternalLiaison" targetRef="Gateway_ParallelJoin" />
+    <bpmn:sequenceFlow id="Flow_Join_Recovery" sourceRef="Gateway_ParallelJoin" targetRef="Task_RecoveryTransition" />
+    <bpmn:sequenceFlow id="Flow_Recovery_Split" sourceRef="Task_RecoveryTransition" targetRef="Gateway_RecoverySplit" />
+    <bpmn:sequenceFlow id="Flow_RecoverySplit_Aftercare" sourceRef="Gateway_RecoverySplit" targetRef="Task_Aftercare" />
+    <bpmn:sequenceFlow id="Flow_Aftercare_Psych" sourceRef="Task_Aftercare" targetRef="Task_PsychologicalSupport" />
+    <bpmn:sequenceFlow id="Flow_Psych_RecoveryMerge" sourceRef="Task_PsychologicalSupport" targetRef="Gateway_RecoveryMerge" />
+    <bpmn:sequenceFlow id="Flow_RecoverySplit_Investigation" sourceRef="Gateway_RecoverySplit" targetRef="Task_Investigation" />
+    <bpmn:sequenceFlow id="Flow_Investigation_Collect" sourceRef="Task_Investigation" targetRef="Task_CollectEvidence" />
+    <bpmn:sequenceFlow id="Flow_Collect_RecoveryMerge" sourceRef="Task_CollectEvidence" targetRef="Gateway_RecoveryMerge" />
+    <bpmn:sequenceFlow id="Flow_RecoveryMerge_Evaluate" sourceRef="Gateway_RecoveryMerge" targetRef="Task_EvaluateResponse" />
+    <bpmn:sequenceFlow id="Flow_Evaluate_FinalReport" sourceRef="Task_EvaluateResponse" targetRef="Task_FinalReport" />
     <bpmn:sequenceFlow id="Flow_FinalReport_End" sourceRef="Task_FinalReport" targetRef="EndEvent_ResponseComplete" />
   </bpmn:process>
   <bpmn:process id="Process_ExternalSupport" name="外部支援协同" isExecutable="false">
@@ -435,317 +730,507 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_WaterTrafficEmergency">
     <bpmndi:BPMNPlane id="BPMNPlane_WaterTrafficEmergency" bpmnElement="Collaboration_WaterTrafficEmergency">
       <bpmndi:BPMNShape id="Participant_Project_di" bpmnElement="Participant_Project" isHorizontal="true">
-        <dc:Bounds x="120.00" y="100.00" width="3200.00" height="1080.00" />
+        <dc:Bounds x="120.00" y="100.00" width="5200.00" height="1260.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Participant_External_di" bpmnElement="Participant_External" isHorizontal="true">
-        <dc:Bounds x="120.00" y="1340.00" width="3200.00" height="160.00" />
+        <dc:Bounds x="120.00" y="1580.00" width="5200.00" height="180.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1_di" bpmnElement="Lane_1" isHorizontal="true">
-        <dc:Bounds x="120.00" y="100.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="100.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_2_di" bpmnElement="Lane_2" isHorizontal="true">
-        <dc:Bounds x="120.00" y="220.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="240.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_3_di" bpmnElement="Lane_3" isHorizontal="true">
-        <dc:Bounds x="120.00" y="340.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="380.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_4_di" bpmnElement="Lane_4" isHorizontal="true">
-        <dc:Bounds x="120.00" y="460.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="520.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_5_di" bpmnElement="Lane_5" isHorizontal="true">
-        <dc:Bounds x="120.00" y="580.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="660.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_6_di" bpmnElement="Lane_6" isHorizontal="true">
-        <dc:Bounds x="120.00" y="700.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="800.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_7_di" bpmnElement="Lane_7" isHorizontal="true">
-        <dc:Bounds x="120.00" y="820.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="940.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_8_di" bpmnElement="Lane_8" isHorizontal="true">
-        <dc:Bounds x="120.00" y="940.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="1080.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_9_di" bpmnElement="Lane_9" isHorizontal="true">
-        <dc:Bounds x="120.00" y="1060.00" width="3200.00" height="120.00" />
+        <dc:Bounds x="120.00" y="1220.00" width="5200.00" height="140.00" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="StartEvent_IncidentDetected_di" bpmnElement="StartEvent_IncidentDetected">
-        <dc:Bounds x="320.00" y="142.00" width="36.00" height="36.00" />
+      <bpmndi:BPMNShape id="StartEvent_RoutineMonitoring_di" bpmnElement="StartEvent_RoutineMonitoring">
+        <dc:Bounds x="160.00" y="152.00" width="36.00" height="36.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PreventiveWatch_di" bpmnElement="Task_PreventiveWatch">
+        <dc:Bounds x="280.00" y="130.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RiskPatrol_di" bpmnElement="Task_RiskPatrol">
+        <dc:Bounds x="420.00" y="130.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_PreventiveSplit_di" bpmnElement="Gateway_PreventiveSplit">
+        <dc:Bounds x="560.00" y="145.00" width="50.00" height="50.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InspectEquipment_di" bpmnElement="Task_InspectEquipment">
+        <dc:Bounds x="700.00" y="106.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MonitorEnvironment_di" bpmnElement="Task_MonitorEnvironment">
+        <dc:Bounds x="700.00" y="154.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_PreventiveJoin_di" bpmnElement="Gateway_PreventiveJoin">
+        <dc:Bounds x="840.00" y="145.00" width="50.00" height="50.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PublishAlert_di" bpmnElement="Task_PublishAlert">
+        <dc:Bounds x="980.00" y="270.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyTeams_di" bpmnElement="Task_NotifyTeams">
+        <dc:Bounds x="1120.00" y="410.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IntermediateEvent_Incident_di" bpmnElement="IntermediateEvent_Incident">
+        <dc:Bounds x="1260.00" y="572.00" width="36.00" height="36.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReportProcess_di" bpmnElement="Task_ReportProcess">
+        <dc:Bounds x="1380.00" y="550.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ReportIncident_di" bpmnElement="Task_ReportIncident">
-        <dc:Bounds x="400.00" y="120.00" width="140.00" height="80.00" />
+        <dc:Bounds x="1520.00" y="550.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ConfirmDetails_di" bpmnElement="Task_ConfirmDetails">
-        <dc:Bounds x="560.00" y="120.00" width="140.00" height="80.00" />
+        <dc:Bounds x="1660.00" y="550.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_SummariseSituation_di" bpmnElement="Task_SummariseSituation">
-        <dc:Bounds x="720.00" y="240.00" width="140.00" height="80.00" />
+        <dc:Bounds x="1800.00" y="270.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_VerifyWithUnits_di" bpmnElement="Task_VerifyWithUnits">
-        <dc:Bounds x="880.00" y="240.00" width="140.00" height="80.00" />
+        <dc:Bounds x="1940.00" y="270.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ReportAuthorities_di" bpmnElement="Task_ReportAuthorities">
-        <dc:Bounds x="1040.00" y="240.00" width="140.00" height="80.00" />
+        <dc:Bounds x="2080.00" y="270.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EscalateAuthorities_di" bpmnElement="Task_EscalateAuthorities">
+        <dc:Bounds x="2220.00" y="270.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InitiateResponse_di" bpmnElement="Task_InitiateResponse">
+        <dc:Bounds x="2360.00" y="690.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_AssessResponseLevel_di" bpmnElement="Task_AssessResponseLevel">
-        <dc:Bounds x="1200.00" y="360.00" width="140.00" height="80.00" />
+        <dc:Bounds x="2500.00" y="690.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_ResponseLevel_di" bpmnElement="Gateway_ResponseLevel">
-        <dc:Bounds x="1340.00" y="375.00" width="50.00" height="50.00" />
+        <dc:Bounds x="2640.00" y="705.00" width="50.00" height="50.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_InternalResponse_di" bpmnElement="Task_InternalResponse">
-        <dc:Bounds x="1500.00" y="340.00" width="140.00" height="80.00" />
+        <dc:Bounds x="2780.00" y="662.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_RequestExternalSupport_di" bpmnElement="Task_RequestExternalSupport">
-        <dc:Bounds x="1500.00" y="380.00" width="140.00" height="80.00" />
+        <dc:Bounds x="2780.00" y="718.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_ResponseMerge_di" bpmnElement="Gateway_ResponseMerge">
-        <dc:Bounds x="1660.00" y="375.00" width="50.00" height="50.00" />
+        <dc:Bounds x="2920.00" y="705.00" width="50.00" height="50.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DefineTeamMissions_di" bpmnElement="Task_DefineTeamMissions">
+        <dc:Bounds x="3060.00" y="690.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_IssueOrders_di" bpmnElement="Task_IssueOrders">
-        <dc:Bounds x="1820.00" y="480.00" width="140.00" height="80.00" />
+        <dc:Bounds x="3200.00" y="830.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OnsiteOperations_di" bpmnElement="Task_OnsiteOperations">
+        <dc:Bounds x="3340.00" y="830.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_ParallelSplit_di" bpmnElement="Gateway_ParallelSplit">
-        <dc:Bounds x="1960.00" y="495.00" width="50.00" height="50.00" />
+        <dc:Bounds x="3480.00" y="845.00" width="50.00" height="50.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MedicalPlan_di" bpmnElement="Task_MedicalPlan">
+        <dc:Bounds x="3620.00" y="1110.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_MedicalAid_di" bpmnElement="Task_MedicalAid">
-        <dc:Bounds x="2120.00" y="600.00" width="140.00" height="80.00" />
+        <dc:Bounds x="3760.00" y="1110.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MedicalTransfer_di" bpmnElement="Task_MedicalTransfer">
+        <dc:Bounds x="3900.00" y="1110.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EngineeringDeploy_di" bpmnElement="Task_EngineeringDeploy">
+        <dc:Bounds x="3620.00" y="970.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BlockArea_di" bpmnElement="Task_BlockArea">
+        <dc:Bounds x="3760.00" y="970.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_EngineeringControl_di" bpmnElement="Task_EngineeringControl">
-        <dc:Bounds x="2120.00" y="720.00" width="140.00" height="80.00" />
+        <dc:Bounds x="3900.00" y="970.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Coordination_di" bpmnElement="Task_Coordination">
+        <dc:Bounds x="3620.00" y="410.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_Evacuation_di" bpmnElement="Task_Evacuation">
-        <dc:Bounds x="2120.00" y="840.00" width="140.00" height="80.00" />
+        <dc:Bounds x="3760.00" y="410.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_Communications_di" bpmnElement="Task_Communications">
-        <dc:Bounds x="2120.00" y="240.00" width="140.00" height="80.00" />
+        <dc:Bounds x="3620.00" y="270.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExternalLiaison_di" bpmnElement="Task_ExternalLiaison">
+        <dc:Bounds x="3900.00" y="270.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_ParallelJoin_di" bpmnElement="Gateway_ParallelJoin">
-        <dc:Bounds x="2280.00" y="495.00" width="50.00" height="50.00" />
+        <dc:Bounds x="4040.00" y="845.00" width="50.00" height="50.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RecoveryTransition_di" bpmnElement="Task_RecoveryTransition">
+        <dc:Bounds x="4180.00" y="690.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RecoverySplit_di" bpmnElement="Gateway_RecoverySplit">
+        <dc:Bounds x="4320.00" y="705.00" width="50.00" height="50.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Aftercare_di" bpmnElement="Task_Aftercare">
+        <dc:Bounds x="4460.00" y="1250.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_PsychologicalSupport_di" bpmnElement="Task_PsychologicalSupport">
-        <dc:Bounds x="2440.00" y="960.00" width="140.00" height="80.00" />
+        <dc:Bounds x="4600.00" y="1250.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Investigation_di" bpmnElement="Task_Investigation">
+        <dc:Bounds x="4460.00" y="130.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_CollectEvidence_di" bpmnElement="Task_CollectEvidence">
-        <dc:Bounds x="2600.00" y="1080.00" width="140.00" height="80.00" />
+        <dc:Bounds x="4600.00" y="130.00" width="140.00" height="80.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RecoveryMerge_di" bpmnElement="Gateway_RecoveryMerge">
+        <dc:Bounds x="4740.00" y="705.00" width="50.00" height="50.00" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EvaluateResponse_di" bpmnElement="Task_EvaluateResponse">
+        <dc:Bounds x="4880.00" y="690.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_FinalReport_di" bpmnElement="Task_FinalReport">
-        <dc:Bounds x="2760.00" y="360.00" width="140.00" height="80.00" />
+        <dc:Bounds x="5020.00" y="690.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_ResponseComplete_di" bpmnElement="EndEvent_ResponseComplete">
-        <dc:Bounds x="2900.00" y="382.00" width="36.00" height="36.00" />
+        <dc:Bounds x="5160.00" y="712.00" width="36.00" height="36.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataRef_IncidentReport_di" bpmnElement="DataRef_IncidentReport">
-        <dc:Bounds x="500.00" y="195.00" width="60.00" height="70.00" />
+        <dc:Bounds x="1740.00" y="215.00" width="60.00" height="70.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataRef_ResponseOrders_di" bpmnElement="DataRef_ResponseOrders">
-        <dc:Bounds x="1880.00" y="445.00" width="60.00" height="70.00" />
+        <dc:Bounds x="3260.00" y="785.00" width="60.00" height="70.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataRef_MedicalRecord_di" bpmnElement="DataRef_MedicalRecord">
-        <dc:Bounds x="2240.00" y="605.00" width="60.00" height="70.00" />
+        <dc:Bounds x="3940.00" y="1105.00" width="60.00" height="70.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataRef_EngineeringLog_di" bpmnElement="DataRef_EngineeringLog">
-        <dc:Bounds x="2240.00" y="725.00" width="60.00" height="70.00" />
+        <dc:Bounds x="3940.00" y="1015.00" width="60.00" height="70.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataRef_StatusUpdates_di" bpmnElement="DataRef_StatusUpdates">
-        <dc:Bounds x="2240.00" y="285.00" width="60.00" height="70.00" />
+        <dc:Bounds x="3980.00" y="335.00" width="60.00" height="70.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DataRef_FinalReport_di" bpmnElement="DataRef_FinalReport">
-        <dc:Bounds x="2940.00" y="365.00" width="60.00" height="70.00" />
+        <dc:Bounds x="5080.00" y="695.00" width="60.00" height="70.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="StartEvent_ExternalAlert_di" bpmnElement="StartEvent_ExternalAlert">
-        <dc:Bounds x="1040.00" y="1402.00" width="36.00" height="36.00" />
+        <dc:Bounds x="2060.00" y="1652.00" width="36.00" height="36.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ReceiveReport_di" bpmnElement="Task_ReceiveReport">
-        <dc:Bounds x="1200.00" y="1380.00" width="140.00" height="80.00" />
+        <dc:Bounds x="2220.00" y="1630.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ProvideGuidance_di" bpmnElement="Task_ProvideGuidance">
-        <dc:Bounds x="1380.00" y="1380.00" width="140.00" height="80.00" />
+        <dc:Bounds x="4100.00" y="1630.00" width="140.00" height="80.00" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_ExternalComplete_di" bpmnElement="EndEvent_ExternalComplete">
-        <dc:Bounds x="1520.00" y="1402.00" width="36.00" height="36.00" />
+        <dc:Bounds x="4240.00" y="1652.00" width="36.00" height="36.00" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_Start_Report_di" bpmnElement="Flow_Start_Report">
-        <di:waypoint x="356.00" y="160.00" />
-        <di:waypoint x="400.00" y="160.00" />
+      <bpmndi:BPMNEdge id="Flow_Start_Preventive_di" bpmnElement="Flow_Start_Preventive">
+        <di:waypoint x="196.00" y="170.00" />
+        <di:waypoint x="280.00" y="170.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Preventive_RiskPatrol_di" bpmnElement="Flow_Preventive_RiskPatrol">
+        <di:waypoint x="420.00" y="170.00" />
+        <di:waypoint x="420.00" y="170.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RiskPatrol_Split_di" bpmnElement="Flow_RiskPatrol_Split">
+        <di:waypoint x="560.00" y="170.00" />
+        <di:waypoint x="560.00" y="170.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_Inspect_di" bpmnElement="Flow_Split_Inspect">
+        <di:waypoint x="610.00" y="170.00" />
+        <di:waypoint x="700.00" y="146.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_Environment_di" bpmnElement="Flow_Split_Environment">
+        <di:waypoint x="610.00" y="170.00" />
+        <di:waypoint x="700.00" y="194.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Inspect_Join_di" bpmnElement="Flow_Inspect_Join">
+        <di:waypoint x="840.00" y="146.00" />
+        <di:waypoint x="840.00" y="170.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Environment_Join_di" bpmnElement="Flow_Environment_Join">
+        <di:waypoint x="840.00" y="194.00" />
+        <di:waypoint x="840.00" y="170.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PreventiveJoin_Publish_di" bpmnElement="Flow_PreventiveJoin_Publish">
+        <di:waypoint x="890.00" y="170.00" />
+        <di:waypoint x="980.00" y="310.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Publish_Notify_di" bpmnElement="Flow_Publish_Notify">
+        <di:waypoint x="1120.00" y="310.00" />
+        <di:waypoint x="1120.00" y="450.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Notify_Incident_di" bpmnElement="Flow_Notify_Incident">
+        <di:waypoint x="1260.00" y="450.00" />
+        <di:waypoint x="1260.00" y="590.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Incident_ReportProcess_di" bpmnElement="Flow_Incident_ReportProcess">
+        <di:waypoint x="1296.00" y="590.00" />
+        <di:waypoint x="1380.00" y="590.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReportProcess_ReportIncident_di" bpmnElement="Flow_ReportProcess_ReportIncident">
+        <di:waypoint x="1520.00" y="590.00" />
+        <di:waypoint x="1520.00" y="590.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Report_Confirm_di" bpmnElement="Flow_Report_Confirm">
-        <di:waypoint x="540.00" y="160.00" />
-        <di:waypoint x="560.00" y="160.00" />
+        <di:waypoint x="1660.00" y="590.00" />
+        <di:waypoint x="1660.00" y="590.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Confirm_Summarise_di" bpmnElement="Flow_Confirm_Summarise">
-        <di:waypoint x="700.00" y="160.00" />
-        <di:waypoint x="720.00" y="280.00" />
+        <di:waypoint x="1800.00" y="590.00" />
+        <di:waypoint x="1800.00" y="310.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Summarise_Verify_di" bpmnElement="Flow_Summarise_Verify">
-        <di:waypoint x="860.00" y="280.00" />
-        <di:waypoint x="880.00" y="280.00" />
+        <di:waypoint x="1940.00" y="310.00" />
+        <di:waypoint x="1940.00" y="310.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Verify_ReportAuthorities_di" bpmnElement="Flow_Verify_ReportAuthorities">
-        <di:waypoint x="1020.00" y="280.00" />
-        <di:waypoint x="1040.00" y="280.00" />
+      <bpmndi:BPMNEdge id="Flow_Verify_Report_di" bpmnElement="Flow_Verify_Report">
+        <di:waypoint x="2080.00" y="310.00" />
+        <di:waypoint x="2080.00" y="310.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Report_Assess_di" bpmnElement="Flow_Report_Assess">
-        <di:waypoint x="1180.00" y="280.00" />
-        <di:waypoint x="1200.00" y="400.00" />
+      <bpmndi:BPMNEdge id="Flow_Report_Escalate_di" bpmnElement="Flow_Report_Escalate">
+        <di:waypoint x="2220.00" y="310.00" />
+        <di:waypoint x="2220.00" y="310.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Escalate_Initiate_di" bpmnElement="Flow_Escalate_Initiate">
+        <di:waypoint x="2360.00" y="310.00" />
+        <di:waypoint x="2360.00" y="730.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Initiate_Assess_di" bpmnElement="Flow_Initiate_Assess">
+        <di:waypoint x="2500.00" y="730.00" />
+        <di:waypoint x="2500.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Assess_Gateway_di" bpmnElement="Flow_Assess_Gateway">
-        <di:waypoint x="1340.00" y="400.00" />
-        <di:waypoint x="1340.00" y="400.00" />
+        <di:waypoint x="2640.00" y="730.00" />
+        <di:waypoint x="2640.00" y="730.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Gateway_Internal_di" bpmnElement="Flow_Gateway_Internal">
-        <di:waypoint x="1390.00" y="400.00" />
-        <di:waypoint x="1500.00" y="380.00" />
+      <bpmndi:BPMNEdge id="Flow_Response_Internal_di" bpmnElement="Flow_Response_Internal">
+        <di:waypoint x="2690.00" y="730.00" />
+        <di:waypoint x="2780.00" y="702.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Gateway_External_di" bpmnElement="Flow_Gateway_External">
-        <di:waypoint x="1390.00" y="400.00" />
-        <di:waypoint x="1500.00" y="420.00" />
+      <bpmndi:BPMNEdge id="Flow_Response_External_di" bpmnElement="Flow_Response_External">
+        <di:waypoint x="2690.00" y="730.00" />
+        <di:waypoint x="2780.00" y="758.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Internal_Merge_di" bpmnElement="Flow_Internal_Merge">
-        <di:waypoint x="1640.00" y="380.00" />
-        <di:waypoint x="1660.00" y="400.00" />
+        <di:waypoint x="2920.00" y="702.00" />
+        <di:waypoint x="2920.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_External_Merge_di" bpmnElement="Flow_External_Merge">
-        <di:waypoint x="1640.00" y="420.00" />
-        <di:waypoint x="1660.00" y="400.00" />
+        <di:waypoint x="2920.00" y="758.00" />
+        <di:waypoint x="2920.00" y="730.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Merge_IssueOrders_di" bpmnElement="Flow_Merge_IssueOrders">
-        <di:waypoint x="1710.00" y="400.00" />
-        <di:waypoint x="1820.00" y="520.00" />
+      <bpmndi:BPMNEdge id="Flow_Merge_Define_di" bpmnElement="Flow_Merge_Define">
+        <di:waypoint x="2970.00" y="730.00" />
+        <di:waypoint x="3060.00" y="730.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_IssueOrders_Split_di" bpmnElement="Flow_IssueOrders_Split">
-        <di:waypoint x="1960.00" y="520.00" />
-        <di:waypoint x="1960.00" y="520.00" />
+      <bpmndi:BPMNEdge id="Flow_Define_Issue_di" bpmnElement="Flow_Define_Issue">
+        <di:waypoint x="3200.00" y="730.00" />
+        <di:waypoint x="3200.00" y="870.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Split_Medical_di" bpmnElement="Flow_Split_Medical">
-        <di:waypoint x="2010.00" y="520.00" />
-        <di:waypoint x="2120.00" y="640.00" />
+      <bpmndi:BPMNEdge id="Flow_Issue_Onsite_di" bpmnElement="Flow_Issue_Onsite">
+        <di:waypoint x="3340.00" y="870.00" />
+        <di:waypoint x="3340.00" y="870.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Split_Engineering_di" bpmnElement="Flow_Split_Engineering">
-        <di:waypoint x="2010.00" y="520.00" />
-        <di:waypoint x="2120.00" y="760.00" />
+      <bpmndi:BPMNEdge id="Flow_Onsite_Split_di" bpmnElement="Flow_Onsite_Split">
+        <di:waypoint x="3480.00" y="870.00" />
+        <di:waypoint x="3480.00" y="870.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Split_Evacuation_di" bpmnElement="Flow_Split_Evacuation">
-        <di:waypoint x="2010.00" y="520.00" />
-        <di:waypoint x="2120.00" y="880.00" />
+      <bpmndi:BPMNEdge id="Flow_Split_MedicalPlan_di" bpmnElement="Flow_Split_MedicalPlan">
+        <di:waypoint x="3530.00" y="870.00" />
+        <di:waypoint x="3620.00" y="1150.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Split_Communications_di" bpmnElement="Flow_Split_Communications">
-        <di:waypoint x="2010.00" y="520.00" />
-        <di:waypoint x="2120.00" y="280.00" />
+      <bpmndi:BPMNEdge id="Flow_MedicalPlan_Aid_di" bpmnElement="Flow_MedicalPlan_Aid">
+        <di:waypoint x="3760.00" y="1150.00" />
+        <di:waypoint x="3760.00" y="1150.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_MedicalAid_Transfer_di" bpmnElement="Flow_MedicalAid_Transfer">
+        <di:waypoint x="3900.00" y="1150.00" />
+        <di:waypoint x="3900.00" y="1150.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Medical_Join_di" bpmnElement="Flow_Medical_Join">
-        <di:waypoint x="2260.00" y="640.00" />
-        <di:waypoint x="2280.00" y="520.00" />
+        <di:waypoint x="4040.00" y="1150.00" />
+        <di:waypoint x="4040.00" y="870.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_EngineeringDeploy_di" bpmnElement="Flow_Split_EngineeringDeploy">
+        <di:waypoint x="3530.00" y="870.00" />
+        <di:waypoint x="3620.00" y="1010.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Engineering_Block_di" bpmnElement="Flow_Engineering_Block">
+        <di:waypoint x="3760.00" y="1010.00" />
+        <di:waypoint x="3760.00" y="1010.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Block_Control_di" bpmnElement="Flow_Block_Control">
+        <di:waypoint x="3900.00" y="1010.00" />
+        <di:waypoint x="3900.00" y="1010.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Engineering_Join_di" bpmnElement="Flow_Engineering_Join">
-        <di:waypoint x="2260.00" y="760.00" />
-        <di:waypoint x="2280.00" y="520.00" />
+        <di:waypoint x="4040.00" y="1010.00" />
+        <di:waypoint x="4040.00" y="870.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_Coordination_di" bpmnElement="Flow_Split_Coordination">
+        <di:waypoint x="3530.00" y="870.00" />
+        <di:waypoint x="3620.00" y="450.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Coordination_Evacuation_di" bpmnElement="Flow_Coordination_Evacuation">
+        <di:waypoint x="3760.00" y="450.00" />
+        <di:waypoint x="3760.00" y="450.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Evacuation_Join_di" bpmnElement="Flow_Evacuation_Join">
-        <di:waypoint x="2260.00" y="880.00" />
-        <di:waypoint x="2280.00" y="520.00" />
+        <di:waypoint x="3900.00" y="450.00" />
+        <di:waypoint x="4040.00" y="870.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Communications_Join_di" bpmnElement="Flow_Communications_Join">
-        <di:waypoint x="2260.00" y="280.00" />
-        <di:waypoint x="2280.00" y="520.00" />
+      <bpmndi:BPMNEdge id="Flow_Split_Communications_di" bpmnElement="Flow_Split_Communications">
+        <di:waypoint x="3530.00" y="870.00" />
+        <di:waypoint x="3620.00" y="310.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Join_PsychSupport_di" bpmnElement="Flow_Join_PsychSupport">
-        <di:waypoint x="2330.00" y="520.00" />
-        <di:waypoint x="2440.00" y="1000.00" />
+      <bpmndi:BPMNEdge id="Flow_Communications_Liaison_di" bpmnElement="Flow_Communications_Liaison">
+        <di:waypoint x="3760.00" y="310.00" />
+        <di:waypoint x="3900.00" y="310.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_PsychSupport_CollectEvidence_di" bpmnElement="Flow_PsychSupport_CollectEvidence">
-        <di:waypoint x="2580.00" y="1000.00" />
-        <di:waypoint x="2600.00" y="1120.00" />
+      <bpmndi:BPMNEdge id="Flow_Liaison_Join_di" bpmnElement="Flow_Liaison_Join">
+        <di:waypoint x="4040.00" y="310.00" />
+        <di:waypoint x="4040.00" y="870.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_CollectEvidence_FinalReport_di" bpmnElement="Flow_CollectEvidence_FinalReport">
-        <di:waypoint x="2740.00" y="1120.00" />
-        <di:waypoint x="2760.00" y="400.00" />
+      <bpmndi:BPMNEdge id="Flow_Join_Recovery_di" bpmnElement="Flow_Join_Recovery">
+        <di:waypoint x="4090.00" y="870.00" />
+        <di:waypoint x="4180.00" y="730.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Recovery_Split_di" bpmnElement="Flow_Recovery_Split">
+        <di:waypoint x="4320.00" y="730.00" />
+        <di:waypoint x="4320.00" y="730.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RecoverySplit_Aftercare_di" bpmnElement="Flow_RecoverySplit_Aftercare">
+        <di:waypoint x="4370.00" y="730.00" />
+        <di:waypoint x="4460.00" y="1290.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Aftercare_Psych_di" bpmnElement="Flow_Aftercare_Psych">
+        <di:waypoint x="4600.00" y="1290.00" />
+        <di:waypoint x="4600.00" y="1290.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Psych_RecoveryMerge_di" bpmnElement="Flow_Psych_RecoveryMerge">
+        <di:waypoint x="4740.00" y="1290.00" />
+        <di:waypoint x="4740.00" y="730.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RecoverySplit_Investigation_di" bpmnElement="Flow_RecoverySplit_Investigation">
+        <di:waypoint x="4370.00" y="730.00" />
+        <di:waypoint x="4460.00" y="170.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Investigation_Collect_di" bpmnElement="Flow_Investigation_Collect">
+        <di:waypoint x="4600.00" y="170.00" />
+        <di:waypoint x="4600.00" y="170.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Collect_RecoveryMerge_di" bpmnElement="Flow_Collect_RecoveryMerge">
+        <di:waypoint x="4740.00" y="170.00" />
+        <di:waypoint x="4740.00" y="730.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RecoveryMerge_Evaluate_di" bpmnElement="Flow_RecoveryMerge_Evaluate">
+        <di:waypoint x="4790.00" y="730.00" />
+        <di:waypoint x="4880.00" y="730.00" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Evaluate_FinalReport_di" bpmnElement="Flow_Evaluate_FinalReport">
+        <di:waypoint x="5020.00" y="730.00" />
+        <di:waypoint x="5020.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_FinalReport_End_di" bpmnElement="Flow_FinalReport_End">
-        <di:waypoint x="2900.00" y="400.00" />
-        <di:waypoint x="2900.00" y="400.00" />
+        <di:waypoint x="5160.00" y="730.00" />
+        <di:waypoint x="5160.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ExternalStart_Receive_di" bpmnElement="Flow_ExternalStart_Receive">
-        <di:waypoint x="1076.00" y="1420.00" />
-        <di:waypoint x="1200.00" y="1420.00" />
+        <di:waypoint x="2096.00" y="1670.00" />
+        <di:waypoint x="2220.00" y="1670.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ExternalReceive_Support_di" bpmnElement="Flow_ExternalReceive_Support">
-        <di:waypoint x="1340.00" y="1420.00" />
-        <di:waypoint x="1380.00" y="1420.00" />
+        <di:waypoint x="2360.00" y="1670.00" />
+        <di:waypoint x="4100.00" y="1670.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ExternalSupport_End_di" bpmnElement="Flow_ExternalSupport_End">
-        <di:waypoint x="1520.00" y="1420.00" />
-        <di:waypoint x="1520.00" y="1420.00" />
+        <di:waypoint x="4240.00" y="1670.00" />
+        <di:waypoint x="4240.00" y="1670.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="MessageFlow_GovernmentReport_di" bpmnElement="MessageFlow_GovernmentReport">
-        <di:waypoint x="1180.00" y="280.00" />
-        <di:waypoint x="1200.00" y="1420.00" />
+        <di:waypoint x="2290.00" y="350.00" />
+        <di:waypoint x="2290.00" y="1630.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="MessageFlow_SupportRequest_di" bpmnElement="MessageFlow_SupportRequest">
-        <di:waypoint x="1570.00" y="460.00" />
-        <di:waypoint x="1450.00" y="1380.00" />
+        <di:waypoint x="2920.00" y="758.00" />
+        <di:waypoint x="4100.00" y="1670.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="MessageFlow_StatusUpdate_di" bpmnElement="MessageFlow_StatusUpdate">
-        <di:waypoint x="2120.00" y="280.00" />
-        <di:waypoint x="1520.00" y="1420.00" />
+        <di:waypoint x="4040.00" y="310.00" />
+        <di:waypoint x="4100.00" y="1670.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_ReportIncident_Output_di" bpmnElement="DataAssoc_ReportIncident_Output">
-        <di:waypoint x="470.00" y="120.00" />
-        <di:waypoint x="530.00" y="265.00" />
+        <di:waypoint x="1660.00" y="590.00" />
+        <di:waypoint x="1740.00" y="250.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Summarise_Input_di" bpmnElement="DataAssoc_Summarise_Input">
-        <di:waypoint x="560.00" y="230.00" />
-        <di:waypoint x="720.00" y="280.00" />
+        <di:waypoint x="1800.00" y="250.00" />
+        <di:waypoint x="1800.00" y="310.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_IssueOrders_Output_di" bpmnElement="DataAssoc_IssueOrders_Output">
-        <di:waypoint x="1890.00" y="480.00" />
-        <di:waypoint x="1910.00" y="515.00" />
+        <di:waypoint x="3270.00" y="830.00" />
+        <di:waypoint x="3290.00" y="855.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="DataAssoc_Medical_Input_di" bpmnElement="DataAssoc_Medical_Input">
-        <di:waypoint x="1940.00" y="480.00" />
-        <di:waypoint x="2120.00" y="640.00" />
+      <bpmndi:BPMNEdge id="DataAssoc_MedicalPlan_Input_di" bpmnElement="DataAssoc_MedicalPlan_Input">
+        <di:waypoint x="3320.00" y="820.00" />
+        <di:waypoint x="3620.00" y="1150.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="DataAssoc_Medical_Output_di" bpmnElement="DataAssoc_Medical_Output">
-        <di:waypoint x="2190.00" y="600.00" />
-        <di:waypoint x="2270.00" y="675.00" />
+      <bpmndi:BPMNEdge id="DataAssoc_MedicalAid_Output_di" bpmnElement="DataAssoc_MedicalAid_Output">
+        <di:waypoint x="3900.00" y="1150.00" />
+        <di:waypoint x="3940.00" y="1140.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="DataAssoc_Engineering_Input_di" bpmnElement="DataAssoc_Engineering_Input">
-        <di:waypoint x="1940.00" y="480.00" />
-        <di:waypoint x="2120.00" y="760.00" />
+      <bpmndi:BPMNEdge id="DataAssoc_EngineeringPlan_Input_di" bpmnElement="DataAssoc_EngineeringPlan_Input">
+        <di:waypoint x="3320.00" y="820.00" />
+        <di:waypoint x="3620.00" y="1010.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Engineering_Output_di" bpmnElement="DataAssoc_Engineering_Output">
-        <di:waypoint x="2190.00" y="720.00" />
-        <di:waypoint x="2270.00" y="795.00" />
+        <di:waypoint x="3970.00" y="970.00" />
+        <di:waypoint x="3970.00" y="1085.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="DataAssoc_Evacuation_Input_di" bpmnElement="DataAssoc_Evacuation_Input">
-        <di:waypoint x="1940.00" y="480.00" />
-        <di:waypoint x="2120.00" y="880.00" />
+      <bpmndi:BPMNEdge id="DataAssoc_Coordination_Input_di" bpmnElement="DataAssoc_Coordination_Input">
+        <di:waypoint x="3320.00" y="820.00" />
+        <di:waypoint x="3620.00" y="450.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Communications_Input_di" bpmnElement="DataAssoc_Communications_Input">
-        <di:waypoint x="1940.00" y="480.00" />
-        <di:waypoint x="2120.00" y="280.00" />
+        <di:waypoint x="3320.00" y="820.00" />
+        <di:waypoint x="3620.00" y="310.00" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="DataAssoc_Communications_Output_di" bpmnElement="DataAssoc_Communications_Output">
-        <di:waypoint x="2190.00" y="240.00" />
-        <di:waypoint x="2270.00" y="355.00" />
+      <bpmndi:BPMNEdge id="DataAssoc_StatusUpdates_Output_di" bpmnElement="DataAssoc_StatusUpdates_Output">
+        <di:waypoint x="3970.00" y="270.00" />
+        <di:waypoint x="4010.00" y="405.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Final_Input_Response_di" bpmnElement="DataAssoc_Final_Input_Response">
-        <di:waypoint x="1940.00" y="480.00" />
-        <di:waypoint x="2760.00" y="400.00" />
+        <di:waypoint x="3320.00" y="820.00" />
+        <di:waypoint x="5020.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Final_Input_Medical_di" bpmnElement="DataAssoc_Final_Input_Medical">
-        <di:waypoint x="2300.00" y="640.00" />
-        <di:waypoint x="2760.00" y="400.00" />
+        <di:waypoint x="4000.00" y="1140.00" />
+        <di:waypoint x="5020.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Final_Input_Engineering_di" bpmnElement="DataAssoc_Final_Input_Engineering">
-        <di:waypoint x="2300.00" y="760.00" />
-        <di:waypoint x="2760.00" y="400.00" />
+        <di:waypoint x="4000.00" y="1050.00" />
+        <di:waypoint x="5020.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Final_Input_Status_di" bpmnElement="DataAssoc_Final_Input_Status">
-        <di:waypoint x="2300.00" y="320.00" />
-        <di:waypoint x="2760.00" y="400.00" />
+        <di:waypoint x="4040.00" y="370.00" />
+        <di:waypoint x="5020.00" y="730.00" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataAssoc_Final_Output_di" bpmnElement="DataAssoc_Final_Output">
-        <di:waypoint x="2900.00" y="400.00" />
-        <di:waypoint x="2940.00" y="400.00" />
+        <di:waypoint x="5090.00" y="690.00" />
+        <di:waypoint x="5110.00" y="765.00" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
