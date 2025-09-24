@@ -21,7 +21,7 @@ import re
 import textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
 import xml.etree.ElementTree as ET
 
 
@@ -138,6 +138,16 @@ class DataObjectSpec:
     lane: str
     x: float
     y_offset: float = 0.0
+
+
+LABEL_STYLE_ID = "LabelStyle_Default"
+LABEL_FONT_SIZE = 18
+
+
+def append_label(di_element: ET.Element) -> None:
+    """Attach a label definition that references the default font style."""
+
+    ET.SubElement(di_element, "bpmndi:BPMNLabel", attrib={"labelStyle": LABEL_STYLE_ID})
 
 
 TASK_ENRICHMENTS: Dict[str, TaskEnrichment] = {
@@ -1203,6 +1213,7 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             external_lane_bounds[3],
         ),
     }
+    labelled_elements: Set[str] = set()
 
     definitions = ET.Element(
         "bpmn:definitions",
@@ -1226,6 +1237,7 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             "processRef": process_id,
         },
     )
+    labelled_elements.add("Participant_Project")
     ET.SubElement(
         collaboration,
         "bpmn:participant",
@@ -1235,6 +1247,7 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             "processRef": external_process_id,
         },
     )
+    labelled_elements.add("Participant_External")
     for message in message_flows:
         ET.SubElement(
             collaboration,
@@ -1246,6 +1259,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "targetRef": message["target"],
             },
         )
+        if message.get("name"):
+            labelled_elements.add(message["id"])
 
     process = ET.SubElement(
         definitions,
@@ -1259,6 +1274,7 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
 
     lane_set = ET.SubElement(process, "bpmn:laneSet", attrib={"id": "LaneSet_Project"})
     for lane in lanes:
+        labelled_elements.add(lane.lane_id)
         lane_element = ET.SubElement(
             lane_set,
             "bpmn:lane",
@@ -1282,6 +1298,7 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "name": data_spec.name,
             },
         )
+        labelled_elements.add(data_spec.ref_id)
 
     data_association_edges: List[Tuple[str, str, str, str]] = []
     for spec in project_nodes:
@@ -1290,6 +1307,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             spec.element_type,
             attrib={"id": spec.element_id, "name": spec.name},
         )
+        if spec.name:
+            labelled_elements.add(spec.element_id)
         for flow_id in incoming_map.get(spec.element_id, []):
             ET.SubElement(element, "bpmn:incoming").text = flow_id
         for flow_id in outgoing_map.get(spec.element_id, []):
@@ -1349,6 +1368,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
         if flow.get("name"):
             attributes["name"] = flow["name"]
         ET.SubElement(process, "bpmn:sequenceFlow", attrib=attributes)
+        if flow.get("name"):
+            labelled_elements.add(flow["id"])
 
     external_process = ET.SubElement(
         definitions,
@@ -1366,6 +1387,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             spec.element_type,
             attrib={"id": spec.element_id, "name": spec.name},
         )
+        if spec.name:
+            labelled_elements.add(spec.element_id)
         for flow_id in external_incoming.get(spec.element_id, []):
             ET.SubElement(element, "bpmn:incoming").text = flow_id
         for flow_id in external_outgoing.get(spec.element_id, []):
@@ -1375,11 +1398,16 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
             doc.text = spec.documentation
 
     for flow in external_sequence_flows:
-        ET.SubElement(
-            external_process,
-            "bpmn:sequenceFlow",
-            attrib={"id": flow["id"], "sourceRef": flow["source"], "targetRef": flow["target"]},
-        )
+        attributes = {
+            "id": flow["id"],
+            "sourceRef": flow["source"],
+            "targetRef": flow["target"],
+        }
+        if flow.get("name"):
+            attributes["name"] = flow["name"]
+        ET.SubElement(external_process, "bpmn:sequenceFlow", attrib=attributes)
+        if flow.get("name"):
+            labelled_elements.add(flow["id"])
 
     diagram = ET.SubElement(
         definitions,
@@ -1391,6 +1419,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
         "bpmndi:BPMNPlane",
         attrib={"id": "BPMNPlane_WaterTrafficEmergency", "bpmnElement": collaboration_id},
     )
+    label_style = ET.SubElement(diagram, "bpmndi:BPMNLabelStyle", attrib={"id": LABEL_STYLE_ID})
+    ET.SubElement(label_style, "dc:Font", attrib={"size": str(LABEL_FONT_SIZE)})
 
     for participant_id, bounds in participant_positions.items():
         shape = ET.SubElement(
@@ -1412,6 +1442,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "height": f"{bounds[3]:.2f}",
             },
         )
+        if participant_id in labelled_elements:
+            append_label(shape)
 
     for lane in lanes:
         lane_bounds = lane_positions[lane.lane_id]
@@ -1434,6 +1466,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "height": f"{lane_bounds[3]:.2f}",
             },
         )
+        if lane.lane_id in labelled_elements:
+            append_label(lane_shape)
 
     for element_id, (x, y, width, height) in positions.items():
         shape = ET.SubElement(
@@ -1451,6 +1485,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "height": f"{height:.2f}",
             },
         )
+        if element_id in labelled_elements:
+            append_label(shape)
 
     for flow in sequence_flows + external_sequence_flows:
         edge = ET.SubElement(
@@ -1464,6 +1500,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "di:waypoint",
                 attrib={"x": f"{point[0]:.2f}", "y": f"{point[1]:.2f}"},
             )
+        if flow["id"] in labelled_elements:
+            append_label(edge)
 
     for message in message_flows:
         edge = ET.SubElement(
@@ -1477,6 +1515,8 @@ def build_bpmn(root: TaskNode, output_path: Path) -> None:
                 "di:waypoint",
                 attrib={"x": f"{point[0]:.2f}", "y": f"{point[1]:.2f}"},
             )
+        if message["id"] in labelled_elements:
+            append_label(edge)
 
     for assoc_type, assoc_id, source_id, target_id in data_association_edges:
         edge = ET.SubElement(
